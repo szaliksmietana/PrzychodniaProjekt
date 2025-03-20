@@ -12,6 +12,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import pl.example.przychodniafx.model.User;
 
 import java.util.Optional;
 
@@ -21,19 +22,19 @@ public class ManageUsersController {
     private TableView<User> userTable;
 
     @FXML
-    private TableColumn<User, String> nameColumn;
+    private TableColumn<User, String> first_nameColumn;
 
     @FXML
-    private TableColumn<User, String> surnameColumn;
+    private TableColumn<User, String> last_nameColumn;
 
     @FXML
     private TableColumn<User, String> peselColumn;
 
     @FXML
-    private TableColumn<User, String> birthDateColumn;
+    private TableColumn<User, String> birth_dateColumn;
 
     @FXML
-    private TableColumn<User, String> phoneColumn;
+    private TableColumn<User, String> phone_numberColumn;
 
     private ObservableList<User> userList = FXCollections.observableArrayList(
             new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
@@ -43,11 +44,11 @@ public class ManageUsersController {
     @FXML
     public void initialize() {
 
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        surnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
+        first_nameColumn.setCellValueFactory(new PropertyValueFactory<>("first_name"));
+        last_nameColumn.setCellValueFactory(new PropertyValueFactory<>("last_name"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
-        birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
-        phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        birth_dateColumn.setCellValueFactory(new PropertyValueFactory<>("birth_date"));
+        phone_numberColumn.setCellValueFactory(new PropertyValueFactory<>("phone_number"));
 
 
         userTable.setItems(userList);
@@ -94,7 +95,7 @@ public class ManageUsersController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Potwierdzenie");
         alert.setHeaderText("Usunięcie użytkownika");
-        alert.setContentText("Czy na pewno chcesz usunąć użytkownika " + selectedUser.getName() + " " + selectedUser.getSurname() + "?");
+        alert.setContentText("Czy na pewno chcesz usunąć użytkownika " + selectedUser.getFirst_name() + " " + selectedUser.getLast_name() + "?");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {

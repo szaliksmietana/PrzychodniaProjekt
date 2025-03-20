@@ -7,28 +7,28 @@ import javafx.stage.Stage;
 public class AddUserController {
 
     @FXML
-    private TextField nameField;
+    private TextField first_nameField;
 
     @FXML
-    private TextField surnameField;
+    private TextField last_nameField;
 
     @FXML
     private TextField peselField;
 
     @FXML
-    private TextField birthDateField;
+    private TextField birth_dateField;
 
     @FXML
-    private TextField phoneField;
+    private TextField phone_numberField;
 
     @FXML
     private void handleSave() {
 
-        String name = nameField.getText();
-        String surname = surnameField.getText();
+        String name = first_nameField.getText();
+        String surname = last_nameField.getText();
         String pesel = peselField.getText();
-        String birthDate = birthDateField.getText();
-        String phone = phoneField.getText();
+        String birthDate = birth_dateField.getText();
+        String phone = phone_numberField.getText();
 
 
         if (name.isEmpty() || surname.isEmpty() || pesel.isEmpty() || birthDate.isEmpty() || phone.isEmpty()) {
@@ -49,7 +49,7 @@ public class AddUserController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) nameField.getScene().getWindow();
+        Stage stage = (Stage) first_nameField.getScene().getWindow();
         stage.close();
     }
 }

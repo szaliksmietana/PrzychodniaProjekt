@@ -11,11 +11,11 @@
 
     <Label text="Edytuj użytkownika" style="-fx-font-size: 18px;"/>
 
-    <TextField fx:id="nameField" promptText="Imię"/>
-    <TextField fx:id="surnameField" promptText="Nazwisko"/>
+    <TextField fx:id="first_nameField" promptText="Imię"/>
+    <TextField fx:id="last_nameField" promptText="Nazwisko"/>
     <TextField fx:id="peselField" promptText="PESEL"/>
-    <TextField fx:id="birthDateField" promptText="Data urodzenia (YYYY-MM-DD)"/>
-    <TextField fx:id="phoneField" promptText="Telefon"/>
+    <TextField fx:id="birth_dateField" promptText="Data urodzenia (YYYY-MM-DD)"/>
+    <TextField fx:id="phone_numberField" promptText="Telefon"/>
 
     <Button text="Zapisz zmiany" onAction="#handleSave"/>
     <Button text="Anuluj" onAction="#handleCancel"/>

@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import pl.example.przychodniafx.model.User;
 
 
 import java.util.List;
@@ -15,10 +16,10 @@ import java.util.List;
 public class SearchUserController {
 
     @FXML
-    private TextField nameField;
+    private TextField first_nameField;
 
     @FXML
-    private TextField surnameField;
+    private TextField last_nameField;
 
     @FXML
     private Label resultLabel;
@@ -30,13 +31,13 @@ public class SearchUserController {
     private Label fullNameLabel;
 
     @FXML
-    private Label birthDateLabel;
+    private Label birth_dateLabel;
 
     @FXML
     private Label peselLabel;
 
     @FXML
-    private Label phoneLabel;
+    private Label phone_numberLabel;
 
     private User foundUser = null;
 
@@ -62,8 +63,8 @@ public class SearchUserController {
             return;
         }
 
-        nameField.setText(name);
-        surnameField.setText(surname);
+        first_nameField.setText(name);
+        last_nameField.setText(surname);
 
 
         if (!name.isEmpty() && !surname.isEmpty()) {
@@ -73,8 +74,8 @@ public class SearchUserController {
 
     @FXML
     private void handleSearch() {
-        String name = nameField.getText().trim();
-        String surname = surnameField.getText().trim();
+        String name = first_nameField.getText().trim();
+        String surname = last_nameField.getText().trim();
 
         if (name.isEmpty() || surname.isEmpty()) {
             resultLabel.setText("Wprowadź imię i nazwisko!");
@@ -83,12 +84,12 @@ public class SearchUserController {
         }
 
         for (User user : users) {
-            if (user.getName().equalsIgnoreCase(name) && user.getSurname().equalsIgnoreCase(surname)) {
+            if (user.getFirst_name().equalsIgnoreCase(name) && user.getLast_name().equalsIgnoreCase(surname)) {
                 foundUser = user;
-                fullNameLabel.setText("Imię i Nazwisko: " + user.getName() + " " + user.getSurname());
-                birthDateLabel.setText("Data urodzenia: " + user.getBirthDate());
+                fullNameLabel.setText("Imię i Nazwisko: " + user.getFirst_name() + " " + user.getLast_name());
+                birth_dateLabel.setText("Data urodzenia: " + user.getBirth_date());
                 peselLabel.setText("PESEL: " + user.getPesel());
-                phoneLabel.setText("Telefon: " + user.getPhone());
+                phone_numberLabel.setText("Telefon: " + user.getPhone_number());
 
                 detailsBox.setVisible(true);
                 resultLabel.setText("");
@@ -124,7 +125,7 @@ public class SearchUserController {
 
     @FXML
     private void handleClose() {
-        Stage stage = (Stage) nameField.getScene().getWindow();
+        Stage stage = (Stage) first_nameField.getScene().getWindow();
         stage.close();
     }
 }

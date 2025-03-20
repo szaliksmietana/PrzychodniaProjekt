@@ -11,11 +11,11 @@
 
     <TableView fx:id="userTable">
         <columns>
-            <TableColumn text="Imię" fx:id="nameColumn"/>
-            <TableColumn text="Nazwisko" fx:id="surnameColumn"/>
+            <TableColumn text="Imię" fx:id="first_nameColumn"/>
+            <TableColumn text="Nazwisko" fx:id="last_nameColumn"/>
             <TableColumn text="PESEL" fx:id="peselColumn"/>
-            <TableColumn text="Data urodzenia" fx:id="birthDateColumn"/>
-            <TableColumn text="Telefon" fx:id="phoneColumn"/>
+            <TableColumn text="Data urodzenia" fx:id="birth_dateColumn"/>
+            <TableColumn text="Telefon" fx:id="phone_numberColumn"/>
         </columns>
     </TableView>
 

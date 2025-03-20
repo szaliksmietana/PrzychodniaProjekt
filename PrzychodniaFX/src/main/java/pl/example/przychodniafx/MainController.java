@@ -10,10 +10,10 @@ import javafx.stage.Stage;
 public class MainController {
 
     @FXML
-    private TextField nameField;
+    private TextField first_nameField;
 
     @FXML
-    private TextField surnameField;
+    private TextField last_nameField;
 
     @FXML
     private void handleAddUser() {
@@ -33,9 +33,9 @@ public class MainController {
 
             SearchUserController controller = loader.getController();
 
-            if (nameField != null && surnameField != null) {
-                String name = nameField.getText().trim();
-                String surname = surnameField.getText().trim();
+            if (first_nameField != null && last_nameField != null) {
+                String name = first_nameField.getText().trim();
+                String surname = last_nameField.getText().trim();
                 controller.setInitialSearchData(name, surname);
             }
 

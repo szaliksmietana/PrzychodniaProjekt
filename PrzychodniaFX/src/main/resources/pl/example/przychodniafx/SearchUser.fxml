@@ -10,8 +10,8 @@
       fx:controller="pl.example.przychodniafx.SearchUserController">
 
     <Label text="Wyszukaj użytkownika"/>
-    <TextField fx:id="nameField" promptText="Imię"/>
-    <TextField fx:id="surnameField" promptText="Nazwisko"/>
+    <TextField fx:id="first_nameField" promptText="Imię"/>
+    <TextField fx:id="last_nameField" promptText="Nazwisko"/>
     <Button text="Wyszukaj" onAction="#handleSearch"/>
 
 
@@ -19,9 +19,9 @@
 
     <VBox fx:id="detailsBox" spacing="5.0" visible="false">
         <Label fx:id="fullNameLabel"/>
-        <Label fx:id="birthDateLabel"/>
+        <Label fx:id="birth_dateLabel"/>
         <Label fx:id="peselLabel"/>
-        <Label fx:id="phoneLabel"/>
+        <Label fx:id="phone_numberLabel"/>
         <Button text="Edytuj" onAction="#handleEdit"/>
     </VBox>
 
