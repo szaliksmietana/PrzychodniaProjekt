@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10.0" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pl.example.przychodniafx.AddUserController">
+
+    <Label text="Dodaj nowego użytkownika" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="nameField" promptText="Imię"/>
+    <TextField fx:id="surnameField" promptText="Nazwisko"/>
+    <TextField fx:id="peselField" promptText="PESEL"/>
+    <TextField fx:id="birthDateField" promptText="Data urodzenia (YYYY-MM-DD)"/>
+    <TextField fx:id="phoneField" promptText="Telefon"/>
+
+    <Button text="Zapisz" onAction="#handleSave"/>
+    <Button text="Anuluj" onAction="#handleCancel"/>
+</VBox>

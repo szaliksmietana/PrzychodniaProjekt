@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pl.example.przychodniafx.SearchUserController">
+
+    <Label text="Wyszukaj użytkownika"/>
+    <TextField fx:id="nameField" promptText="Imię"/>
+    <TextField fx:id="surnameField" promptText="Nazwisko"/>
+    <Button text="Wyszukaj" onAction="#handleSearch"/>
+
+
+    <Label fx:id="resultLabel" text="" style="-fx-text-fill: red;"/>
+
+    <VBox fx:id="detailsBox" spacing="5.0" visible="false">
+        <Label fx:id="fullNameLabel"/>
+        <Label fx:id="birthDateLabel"/>
+        <Label fx:id="peselLabel"/>
+        <Label fx:id="phoneLabel"/>
+        <Button text="Edytuj" onAction="#handleEdit"/>
+    </VBox>
+
+    <Button text="Zamknij" onAction="#handleClose"/>
+
+</VBox>
