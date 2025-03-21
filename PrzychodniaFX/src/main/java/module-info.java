@@ -2,6 +2,7 @@ module pl.example.przychodniafx {
     requires javafx.controls;
     requires javafx.fxml;
     requires static lombok;
+    requires java.sql;
 
 
     opens pl.example.przychodniafx to javafx.fxml;
