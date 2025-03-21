@@ -4,6 +4,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.model.User;
+import pl.example.przychodniafx.dao.EditUserDAO;
+
+import java.sql.SQLException;
 
 public class EditUserController {
 
@@ -19,10 +22,11 @@ public class EditUserController {
     @FXML
     private TextField birth_dateField;
 
-    @FXML
-    private TextField phone_numberField;
+    //@FXML
+    //private TextField phone_numberField;
 
     private User userToEdit;
+    private final EditUserDAO editUserDAO = new EditUserDAO();
 
     public void setUserData(User user) {
         this.userToEdit = user;
@@ -30,23 +34,57 @@ public class EditUserController {
         last_nameField.setText(user.getLast_name());
         peselField.setText(user.getPesel());
         birth_dateField.setText(user.getBirth_date());
-        phone_numberField.setText(user.getPhone_number());
+        //phone_numberField.setText(user.getPhone_number());
     }
 
     @FXML
     private void handleSave() {
         if (userToEdit != null) {
-            userToEdit.setFirst_name(first_nameField.getText());
-            userToEdit.setLast_name(last_nameField.getText());
-            userToEdit.setPesel(peselField.getText());
-            userToEdit.setBirth_date(birth_dateField.getText());
-            userToEdit.setPhone_number(phone_numberField.getText());
+            String name = first_nameField.getText();
+            String surname = last_nameField.getText();
+            String pesel = peselField.getText();
+            String birthDate = birth_dateField.getText();
 
-            System.out.println("Zapisano zmiany dla: " + userToEdit.getFirst_name() + " " + userToEdit.getLast_name());
+            if (name.isEmpty() || surname.isEmpty() || pesel.isEmpty() || birthDate.isEmpty()) {
+                System.out.println("Błąd, Wszystkie pola muszą być wypełnione!");
+                return;
+            }
+
+            // Validate PESEL
+            if (!isValidPesel(pesel)) {
+                System.out.println("Błąd, Nieprawidłowy numer PESEL!");
+                return;
+            }
+
+            userToEdit.setFirst_name(name);
+            userToEdit.setLast_name(surname);
+            userToEdit.setPesel(pesel);
+            userToEdit.setBirth_date(birthDate);
+
+            try {
+                editUserDAO.updateUser(userToEdit);
+                System.out.println("Sukces, Zapisano zmiany dla: " + userToEdit.getFirst_name() + " " + userToEdit.getLast_name());
+                handleCancel();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Błąd, Nie udało się zaktualizować danych użytkownika: " + e.getMessage());
+            }
         }
-        handleCancel();
+
     }
 
+    private boolean isValidPesel(String pesel) {
+        if (pesel == null || pesel.length() != 11) {
+            return false;
+        }
+
+        for (char c : pesel.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
     @FXML
     private void handleCancel() {
         Stage stage = (Stage) first_nameField.getScene().getWindow();

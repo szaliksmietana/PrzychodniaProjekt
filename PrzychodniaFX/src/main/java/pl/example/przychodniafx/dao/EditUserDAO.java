@@ -9,7 +9,7 @@ import java.util.List;
 
 public class EditUserDAO {
     public void updateUser(User user) throws SQLException {
-        String sql = "UPDATE Users SET first_name = ?, last_name = ?, pesel = ?, birth_date = ? " +
+        String sql = "UPDATE Users SET first_name = ?, last_name = ?, pesel = ?, birth_date = ?, gender = ? " +
                 "WHERE user_id = ?";
 
         try (Connection conn = DbConnection.connect();
@@ -28,8 +28,8 @@ public class EditUserDAO {
             pstmt.setString(10, user.getApartment_number());
             pstmt.setString(12, user.getEmail());
              */
-            pstmt.setString(11, user.getGender() != null ? user.getGender().toString() : null);
-            pstmt.setInt(13, user.getUser_id());
+            pstmt.setString(5, user.getGender() != null ? user.getGender().toString() : null);
+            pstmt.setInt(6, user.getUser_id());
 
             pstmt.executeUpdate();
         }

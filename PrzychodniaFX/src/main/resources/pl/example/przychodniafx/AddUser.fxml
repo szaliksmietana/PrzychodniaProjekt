@@ -15,7 +15,7 @@
     <TextField fx:id="last_nameField" promptText="Nazwisko"/>
     <TextField fx:id="peselField" promptText="PESEL"/>
     <TextField fx:id="birth_dateField" promptText="Data urodzenia (YYYY-MM-DD)"/>
-    <TextField fx:id="phone_numberField" promptText="Telefon"/>
+    <!--<TextField fx:id="phone_numberField" promptText="Telefon"/>-->
 
     <Button text="Zapisz" onAction="#handleSave"/>
     <Button text="Anuluj" onAction="#handleCancel"/>

@@ -13,7 +13,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.model.User;
+import pl.example.przychodniafx.dao.AddUserDAO;
+import pl.example.przychodniafx.dao.EditUserDAO;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 public class ManageUsersController {
@@ -33,13 +37,14 @@ public class ManageUsersController {
     @FXML
     private TableColumn<User, String> birth_dateColumn;
 
-    @FXML
-    private TableColumn<User, String> phone_numberColumn;
+    //@FXML
+    //private TableColumn<User, String> phone_numberColumn;
 
     private ObservableList<User> userList = FXCollections.observableArrayList(
-            new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
-            new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
+            //new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
+            //new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
     );
+    private final AddUserDAO UserDAO = new AddUserDAO();
 
     @FXML
     public void initialize() {
@@ -48,12 +53,21 @@ public class ManageUsersController {
         last_nameColumn.setCellValueFactory(new PropertyValueFactory<>("last_name"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
         birth_dateColumn.setCellValueFactory(new PropertyValueFactory<>("birth_date"));
-        phone_numberColumn.setCellValueFactory(new PropertyValueFactory<>("phone_number"));
-
-
-        userTable.setItems(userList);
+        //phone_numberColumn.setCellValueFactory(new PropertyValueFactory<>("phone_number"));
+        LoadUsersFromDB();
     }
 
+    private void LoadUsersFromDB(){
+        try{
+            List<User> users = UserDAO.getAllUsers();
+            userList.clear();
+            userList.addAll(users);
+            userTable.setItems(userList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Błąd", "Nie udało się załadować listy użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
 
     @FXML
     private void openEditUserWindow() {

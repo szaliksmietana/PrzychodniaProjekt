@@ -42,8 +42,8 @@ public class SearchUserController {
     private User foundUser = null;
 
     private List<User> users = List.of(
-            new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
-            new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
+            //new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
+            //new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
     );
 
 
@@ -89,7 +89,7 @@ public class SearchUserController {
                 fullNameLabel.setText("Imię i Nazwisko: " + user.getFirst_name() + " " + user.getLast_name());
                 birth_dateLabel.setText("Data urodzenia: " + user.getBirth_date());
                 peselLabel.setText("PESEL: " + user.getPesel());
-                phone_numberLabel.setText("Telefon: " + user.getPhone_number());
+                //phone_numberLabel.setText("Telefon: " + user.getPhone_number());
 
                 detailsBox.setVisible(true);
                 resultLabel.setText("");

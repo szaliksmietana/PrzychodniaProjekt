@@ -6,7 +6,6 @@ import javafx.stage.Stage;
 
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.model.User;
-import pl.example.przychodniafx.dao.AddUserDAO.*;
 import java.sql.SQLException;
 
 public class AddUserController {
@@ -23,7 +22,7 @@ public class AddUserController {
     @FXML
     private TextField birth_dateField;
 
-    @FXML
+    //@FXML
     //private TextField phone_numberField;
 
     private final AddUserDAO UserDAO = new AddUserDAO();

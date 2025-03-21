@@ -4,11 +4,13 @@ import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.DbConnection;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddUserDAO {
     public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, " +
-                "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -58,6 +60,23 @@ public class AddUserDAO {
 
         return null;
     }
+
+    public List<User> getAllUsers() throws SQLException {
+        String sql = "SELECT * FROM Users";
+        List<User> users = new ArrayList<>();
+
+        try (Connection conn = DbConnection.connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                users.add(extractUserFromResultSet(rs));
+            }
+        }
+
+        return users;
+    }
+
     //Wypisywanie danych usera
     private User extractUserFromResultSet(ResultSet rs) throws SQLException {
         User user = new User(
