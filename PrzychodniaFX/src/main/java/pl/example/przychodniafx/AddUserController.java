@@ -1,6 +1,8 @@
 package pl.example.przychodniafx;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -25,7 +27,26 @@ public class AddUserController {
     //@FXML
     //private TextField phone_numberField;
 
+    @FXML
+    private RadioButton MRadio;
+
+    @FXML
+    private RadioButton FRadio;
+
+    private ToggleGroup genderGroup;
+
     private final AddUserDAO UserDAO = new AddUserDAO();
+
+    @FXML
+    public void initialize() {
+        // Create a toggle group for the radio buttons
+        genderGroup = new ToggleGroup();
+        MRadio.setToggleGroup(genderGroup);
+        FRadio.setToggleGroup(genderGroup);
+
+        // Set male as default selection
+        MRadio.setSelected(true);
+    }
 
     @FXML
     private void handleSave() {
@@ -35,6 +56,8 @@ public class AddUserController {
         String pesel = peselField.getText();
         String birthDate = birth_dateField.getText();
        // String phone = phone_numberField.getText();
+
+        Character gender = getSelectedGender();
 
 
         if (name.isEmpty() || surname.isEmpty() || pesel.isEmpty() || birthDate.isEmpty()) {
@@ -57,6 +80,7 @@ public class AddUserController {
 
             User user = new User(name, surname, pesel, birthDate);
 
+            user.setGender(gender);
             UserDAO.addUser(user);
 
             System.out.println("Sukces, dodano użytkownika: " + name + " " + surname);
@@ -77,6 +101,14 @@ public class AddUserController {
         Stage stage = (Stage) first_nameField.getScene().getWindow();
         stage.close();
     }
+    private Character getSelectedGender() {
+        if (FRadio.isSelected()) {
+            return 'K';  // K for Kobieta (Female)
+        } else {
+            return 'M';  // M for Mężczyzna (Male)
+        }
+    }
+
 
     private boolean isValidPesel(String pesel) {
         // Funkcja do walidacji numeru pesel

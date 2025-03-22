@@ -19,6 +19,7 @@ public class AddUserDAO {
             pstmt.setString(2, user.getLast_name());
             pstmt.setString(3, user.getPesel());
             pstmt.setString(4, user.getBirth_date());
+            pstmt.setString(5, user.getGender().toString());
             /*
             pstmt.setString(5, user.getPhone_number());
             pstmt.setString(6, user.getCity());
@@ -28,7 +29,7 @@ public class AddUserDAO {
             pstmt.setString(10, user.getApartment_number());
 
              */
-            pstmt.setString(5, user.getGender() != null ? user.getGender().toString() : null);
+            //pstmt.setString(5, user.getGender() != null ? user.getGender().toString() : null);
             //pstmt.setString(12, user.getEmail());
 
             int affectedRows = pstmt.executeUpdate();
