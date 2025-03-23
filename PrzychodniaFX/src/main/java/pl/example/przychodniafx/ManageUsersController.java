@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.dao.EditUserDAO;
+import pl.example.przychodniafx.dao.DeleteUserDAO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -45,6 +46,7 @@ public class ManageUsersController {
             //new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
     );
     private final AddUserDAO UserDAO = new AddUserDAO();
+    private final DeleteUserDAO deleteUserDAO = new DeleteUserDAO();
 
     @FXML
     public void initialize() {
@@ -89,12 +91,17 @@ public class ManageUsersController {
             stage.setTitle("Edytuj użytkownika");
             stage.setScene(new Scene(root, 400, 400));
             stage.show();
+            
+            // Dodajemy nasłuchiwacz na zamknięcie okna
+            stage.setOnHidden(event -> {
+                LoadUsersFromDB(); // Odśwież listę użytkowników
+                userTable.refresh(); // Odśwież widok tabeli
+            });
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie można otworzyć okna edycji użytkownika!", Alert.AlertType.ERROR);
         }
     }
-
 
     @FXML
     private void handleDeleteUser() {
@@ -113,8 +120,18 @@ public class ManageUsersController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            userList.remove(selectedUser);
-            showAlert("Sukces", "Użytkownik został usunięty!", Alert.AlertType.INFORMATION);
+            try {
+                boolean deleted = deleteUserDAO.deleteUser(selectedUser);
+                if (deleted) {
+                    userList.remove(selectedUser);
+                    showAlert("Sukces", "Użytkownik został usunięty!", Alert.AlertType.INFORMATION);
+                } else {
+                    showAlert("Błąd", "Nie udało się usunąć użytkownika z bazy danych!", Alert.AlertType.ERROR);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Błąd", "Wystąpił problem podczas usuwania użytkownika: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
     }
     @FXML

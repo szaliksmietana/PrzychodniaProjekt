@@ -4,6 +4,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
 
 <VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pl.example.przychodniafx.MainController">
@@ -12,6 +14,12 @@
 
     <Button text="Dodaj usera" onAction="#handleAddUser"/>
     <Button text="Zarządzanie użytkownikami" onAction="#handleManageUsers"/>
-    <Button text="Wyszukaj usera" onAction="#handleSearchUser"/>
+    
+    <Label text="Szybkie wyszukiwanie (wprowadź imię lub nazwisko lub oba):"/>
+    <HBox spacing="10.0" alignment="CENTER">
+        <TextField fx:id="first_nameField" promptText="Imię" prefWidth="150"/>
+        <TextField fx:id="last_nameField" promptText="Nazwisko" prefWidth="150"/>
+        <Button text="Wyszukaj" onAction="#handleSearchUser"/>
+    </HBox>
 
 </VBox>

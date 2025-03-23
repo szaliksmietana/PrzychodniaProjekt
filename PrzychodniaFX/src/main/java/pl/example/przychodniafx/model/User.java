@@ -21,6 +21,9 @@ public class User {
         this.pesel = pesel;
         this.birth_date = birth_date;
     }
-
-
+    
+    @Override
+    public String toString() {
+        return first_name + " " + last_name + " (PESEL: " + pesel + ")";
+    }
 }

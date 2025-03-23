@@ -5,17 +5,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ListView?>
 
 <VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pl.example.przychodniafx.SearchUserController">
 
     <Label text="Wyszukaj użytkownika"/>
-    <TextField fx:id="first_nameField" promptText="Imię"/>
-    <TextField fx:id="last_nameField" promptText="Nazwisko"/>
+    <TextField fx:id="first_nameField" promptText="Imię (opcjonalne jeśli podane nazwisko)"/>
+    <TextField fx:id="last_nameField" promptText="Nazwisko (opcjonalne jeśli podane imię)"/>
     <Button text="Wyszukaj" onAction="#handleSearch"/>
 
-
     <Label fx:id="resultLabel" text="" style="-fx-text-fill: red;"/>
+    
+    <VBox fx:id="usersListBox" spacing="5.0" visible="false">
+        <Label text="Znaleziono wielu użytkowników:"/>
+        <ListView fx:id="usersListView" prefHeight="150.0" onMouseClicked="#handleUserSelection"/>
+    </VBox>
 
     <VBox fx:id="detailsBox" spacing="5.0" visible="false">
         <Label fx:id="fullNameLabel"/>

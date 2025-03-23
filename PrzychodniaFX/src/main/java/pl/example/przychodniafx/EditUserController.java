@@ -70,7 +70,6 @@ public class EditUserController {
                 System.out.println("Błąd, Nie udało się zaktualizować danych użytkownika: " + e.getMessage());
             }
         }
-
     }
 
     private boolean isValidPesel(String pesel) {
@@ -85,6 +84,7 @@ public class EditUserController {
         }
         return true;
     }
+    
     @FXML
     private void handleCancel() {
         Stage stage = (Stage) first_nameField.getScene().getWindow();
