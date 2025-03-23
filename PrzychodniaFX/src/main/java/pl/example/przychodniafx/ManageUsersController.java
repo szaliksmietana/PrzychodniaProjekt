@@ -35,10 +35,8 @@ public class ManageUsersController {
     @FXML
     private TableColumn<User, String> phoneColumn;
 
-    private ObservableList<User> userList = FXCollections.observableArrayList(
-            new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
-            new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
-    );
+
+    private ObservableList<User> userList = UserService.getInstance().getAllUsers();
 
     @FXML
     public void initialize() {
@@ -49,6 +47,7 @@ public class ManageUsersController {
         birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
+        userList = UserService.getInstance().getAllUsers();
 
         userTable.setItems(userList);
     }
@@ -73,7 +72,10 @@ public class ManageUsersController {
             Stage stage = new Stage();
             stage.setTitle("Edytuj użytkownika");
             stage.setScene(new Scene(root, 400, 400));
-            stage.show();
+            stage.showAndWait();
+            userList = UserService.getInstance().getAllUsers();
+            userTable.setItems(userList);
+            userTable.refresh();
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie można otworzyć okna edycji użytkownika!", Alert.AlertType.ERROR);
@@ -84,6 +86,7 @@ public class ManageUsersController {
     @FXML
     private void handleDeleteUser() {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();
+        userList = UserService.getInstance().getAllUsers();
 
         if (selectedUser == null) {
             showAlert("Błąd", "Nie wybrano użytkownika do usunięcia!", Alert.AlertType.WARNING);

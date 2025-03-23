@@ -1,5 +1,6 @@
 package pl.example.przychodniafx;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -40,10 +41,7 @@ public class SearchUserController {
 
     private User foundUser = null;
 
-    private List<User> users = List.of(
-            new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
-            new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
-    );
+    private ObservableList<User> userList = UserService.getInstance().getAllUsers();
 
 
     @FXML
@@ -81,8 +79,8 @@ public class SearchUserController {
             detailsBox.setVisible(false);
             return;
         }
-
-        for (User user : users) {
+             userList = UserService.getInstance().getAllUsers();
+        for (User user : userList) {
             if (user.getName().equalsIgnoreCase(name) && user.getSurname().equalsIgnoreCase(surname)) {
                 foundUser = user;
                 fullNameLabel.setText("Imię i Nazwisko: " + user.getName() + " " + user.getSurname());

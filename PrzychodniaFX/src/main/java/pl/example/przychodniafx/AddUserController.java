@@ -37,8 +37,8 @@ public class AddUserController {
         }
 
         // Tu można dodać zapis do bazy danych
-        System.out.println("Dodano użytkownika: " + name + " " + surname);
-
+        User user = new User(name, surname, pesel, birthDate, phone);
+        UserService.getInstance().addUser(user);
 
         closeWindow();
     }
