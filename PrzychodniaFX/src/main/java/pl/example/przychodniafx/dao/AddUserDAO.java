@@ -9,8 +9,8 @@ import java.util.List;
 
 public class AddUserDAO {
     public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender, login, password, access_level) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -20,6 +20,9 @@ public class AddUserDAO {
             pstmt.setString(3, user.getPesel());
             pstmt.setString(4, user.getBirth_date());
             pstmt.setString(5, user.getGender().toString());
+            pstmt.setString(6, user.getLogin() != null ? user.getLogin() : user.getPesel());
+            pstmt.setString(7, user.getPassword() != null ? user.getPassword() : user.getPesel());
+            pstmt.setInt(8, user.getAccess_level() != null ? user.getAccess_level() : 1); // Default to basic access level (1)
             /*
             pstmt.setString(5, user.getPhone_number());
             pstmt.setString(6, user.getCity());

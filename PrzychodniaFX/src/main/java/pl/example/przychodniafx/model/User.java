@@ -13,6 +13,7 @@ public class User {
     private String birth_date;
     private Character gender;
     private Boolean is_forgotten;
+    private Integer access_level;
 
     public User(String first_name, String last_name, String pesel, String birth_date) {
         this.first_name = first_name;

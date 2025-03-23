@@ -81,6 +81,12 @@ public class AddUserController {
             User user = new User(name, surname, pesel, birthDate);
 
             user.setGender(gender);
+            // Set default login value (using PESEL as login)
+            user.setLogin(pesel);
+            // Set default password value (using PESEL as password)
+            user.setPassword(pesel);
+            // Set default access level (1 for basic user)
+            user.setAccess_level(1);
             UserDAO.addUser(user);
 
             System.out.println("Sukces, dodano użytkownika: " + name + " " + surname);
