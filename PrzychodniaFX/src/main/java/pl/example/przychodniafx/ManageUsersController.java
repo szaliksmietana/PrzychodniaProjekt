@@ -16,7 +16,7 @@ import javafx.util.Callback;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.dao.AddUserDAO;
-import pl.example.przychodniafx.dao.DeleteUserDAO;
+import pl.example.przychodniafx.dao.ForgetUserDAO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -48,13 +48,13 @@ public class ManageUsersController {
     private ObservableList<User> userList = FXCollections.observableArrayList();
 
     private final AddUserDAO UserDAO = new AddUserDAO();
-    private final DeleteUserDAO deleteUserDAO = new DeleteUserDAO();
+    private final ForgetUserDAO forgetUserDAO = new ForgetUserDAO();
 
     @FXML
     public void initialize() {
         // Aktywujemy edytowalność
         userTable.setEditable(true);
-        isForgottenColumn.setEditable(true);
+        isForgottenColumn.setEditable(true); // Checkbox jest edytowalny
 
         // Kolumny tekstowe
         first_nameColumn.setCellValueFactory(new PropertyValueFactory<>("first_name"));
@@ -72,11 +72,17 @@ public class ManageUsersController {
             return new SimpleStringProperty(display);
         });
 
-        // Checkbox kolumna: is_forgotten
+        // Checkbox kolumna: is_forgotten - wybór użytkownika do zapomnienia
         isForgottenColumn.setCellValueFactory(param -> {
             User user = param.getValue();
             SimpleBooleanProperty property = new SimpleBooleanProperty(user.getIs_forgotten() != null && user.getIs_forgotten());
-            property.addListener((obs, oldVal, newVal) -> user.setIs_forgotten(newVal));
+            property.addListener((obs, oldVal, newVal) -> {
+                if (newVal && !oldVal) { // Zaznaczono checkbox
+                    user.setIs_forgotten(true);
+                } else if (!newVal && oldVal) { // Odznaczono checkbox
+                    user.setIs_forgotten(false);
+                }
+            });
             return property;
         });
         isForgottenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isForgottenColumn));
@@ -84,11 +90,48 @@ public class ManageUsersController {
         LoadUsersFromDB();
     }
 
+    @FXML
+    private void handleForgetUserButton() {
+        // Znajdź zaznaczonych użytkowników
+        List<User> selectedUsers = userList.stream()
+                .filter(user -> user.getIs_forgotten() != null && user.getIs_forgotten())
+                .toList();
+
+        if (selectedUsers.isEmpty()) {
+            showAlert("Błąd", "Nie wybrano żadnego użytkownika do zapomnienia!", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie");
+        alert.setHeaderText("Zapomnij użytkowników");
+        alert.setContentText("Czy na pewno chcesz zapomnieć wybranych użytkowników?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                for (User user : selectedUsers) {
+                    // Użyj nowego DAO do zapomnienia użytkownika
+                    forgetUserDAO.forgetUser(user);
+                    // Usuń użytkownika z widoku tabeli
+                    userList.remove(user);
+                }
+                showAlert("Sukces", "Wybrani użytkownicy zostali zapomniani!", Alert.AlertType.INFORMATION);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Błąd", "Nie udało się zapomnieć użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
+    }
+
     private void LoadUsersFromDB() {
         try {
             List<User> users = UserDAO.getAllUsers();
             userList.clear();
-            userList.addAll(users);
+            // Filtruj użytkowników, aby pokazywać tylko niezapomnianych
+            users.stream()
+                .filter(user -> user.getIs_forgotten() == null || !user.getIs_forgotten())
+                .forEach(userList::add);
             userTable.setItems(userList);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -114,7 +157,7 @@ public class ManageUsersController {
 
             Stage stage = new Stage();
             stage.setTitle("Edytuj użytkownika");
-            stage.setScene(new Scene(root, 600, 500)); // <-- zmieniony rozmiar
+            stage.setScene(new Scene(root, 600, 500));
             stage.show();
 
             stage.setOnHidden(event -> {
@@ -125,37 +168,6 @@ public class ManageUsersController {
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie można otworzyć okna edycji użytkownika!", Alert.AlertType.ERROR);
-        }
-    }
-
-
-    @FXML
-    private void handleDeleteUser() {
-        User selectedUser = userTable.getSelectionModel().getSelectedItem();
-        if (selectedUser == null) {
-            showAlert("Błąd", "Nie wybrano użytkownika do usunięcia!", Alert.AlertType.WARNING);
-            return;
-        }
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Potwierdzenie");
-        alert.setHeaderText("Usunięcie użytkownika");
-        alert.setContentText("Czy na pewno chcesz usunąć użytkownika " + selectedUser.getFirst_name() + " " + selectedUser.getLast_name() + "?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                boolean deleted = deleteUserDAO.deleteUser(selectedUser);
-                if (deleted) {
-                    userList.remove(selectedUser);
-                    showAlert("Sukces", "Użytkownik został usunięty!", Alert.AlertType.INFORMATION);
-                } else {
-                    showAlert("Błąd", "Nie udało się usunąć użytkownika z bazy danych!", Alert.AlertType.ERROR);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert("Błąd", "Wystąpił problem podczas usuwania użytkownika: " + e.getMessage(), Alert.AlertType.ERROR);
-            }
         }
     }
 
@@ -172,11 +184,11 @@ public class ManageUsersController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     private void showStandardWindow(String title, Parent root) {
         Stage stage = new Stage();
         stage.setTitle(title);
         stage.setScene(new Scene(root, 600, 500));
         stage.show();
     }
-
 }

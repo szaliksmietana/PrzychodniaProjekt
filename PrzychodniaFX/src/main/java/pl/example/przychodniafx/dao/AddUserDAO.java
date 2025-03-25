@@ -108,5 +108,18 @@ public class AddUserDAO {
 
         return user;
     }
+
+    public void updateUserForgottenStatus(User user) throws SQLException {
+        String sql = "UPDATE Users SET is_forgotten = ? WHERE user_id = ?";
+
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setBoolean(1, user.getIs_forgotten());
+            pstmt.setInt(2, user.getUser_id());
+
+            pstmt.executeUpdate();
+        }
+    }
 }
 

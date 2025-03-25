@@ -11,18 +11,21 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<junit.version>5.10.2</junit.version>  </properties>
+    <junit.version>5.10.2</junit.version>
+    <javafx.version>23</javafx.version>
+    <maven.compiler.release>23</maven.compiler.release>
+  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>23</version>
+      <version>${javafx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>23</version>
+      <version>${javafx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -67,9 +70,13 @@
         <version>0.0.8</version>
         <configuration>
           <mainClass>pl.example.przychodniafx.Main</mainClass>
+          <launcher>app</launcher>
+          <jlinkImageName>app</jlinkImageName>
+          <noManPages>true</noManPages>
+          <stripDebug>true</stripDebug>
+          <noHeaderFiles>true</noHeaderFiles>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 </project>

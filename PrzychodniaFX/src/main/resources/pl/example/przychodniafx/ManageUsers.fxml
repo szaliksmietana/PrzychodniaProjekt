@@ -18,11 +18,10 @@
             <TableColumn text="Telefon" fx:id="phone_numberColumn"/>
             <TableColumn text="Płeć" fx:id="genderColumn"/>
             <TableColumn text="Zapomnij" fx:id="isForgottenColumn" />
-
         </columns>
     </TableView>
 
     <Button text="Edytuj użytkownika" onAction="#openEditUserWindow"/>
-    <Button text="Zapomnij użytkownika" onAction="#handleDeleteUser"/>
+    <Button text="Zapomnij użytkownika" onAction="#handleForgetUserButton"/>
     <Button text="Zamknij" onAction="#handleClose"/>
 </VBox>
