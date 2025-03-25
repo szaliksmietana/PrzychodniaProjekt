@@ -3,33 +3,42 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.ListView?>
 
-<VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="pl.example.przychodniafx.SearchUserController">
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pl.example.przychodniafx.SearchUserController"
+      prefWidth="450" prefHeight="500" >
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
 
-    <Label text="Wyszukaj użytkownika"/>
-    <TextField fx:id="first_nameField" promptText="Imię (opcjonalne jeśli podane nazwisko)"/>
-    <TextField fx:id="last_nameField" promptText="Nazwisko (opcjonalne jeśli podane imię)"/>
-    <Button text="Wyszukaj" onAction="#handleSearch"/>
+    <Label text="Wyszukaj użytkownika" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
 
-    <Label fx:id="resultLabel" text="" style="-fx-text-fill: red;"/>
-    
-    <VBox fx:id="usersListBox" spacing="5.0" visible="false">
-        <Label text="Znaleziono wielu użytkowników:"/>
-        <ListView fx:id="usersListView" prefHeight="150.0" onMouseClicked="#handleUserSelection"/>
+    <TextField fx:id="first_nameField" promptText="Imię (opcjonalne jeśli podane nazwisko)" prefWidth="300" />
+    <TextField fx:id="last_nameField" promptText="Nazwisko (opcjonalne jeśli podane imię)" prefWidth="300" />
+
+    <Button text="Wyszukaj" onAction="#handleSearch" />
+    <Label fx:id="resultLabel" text="" style="-fx-text-fill: red;" />
+
+
+    <VBox fx:id="usersListBox" spacing="5.0" visible="false" alignment="CENTER">
+        <Label text="Znaleziono wielu użytkowników:" />
+        <ListView fx:id="usersListView" prefHeight="150.0" onMouseClicked="#handleUserSelection" prefWidth="350"/>
     </VBox>
 
-    <VBox fx:id="detailsBox" spacing="5.0" visible="false">
-        <Label fx:id="fullNameLabel"/>
-        <Label fx:id="birth_dateLabel"/>
-        <Label fx:id="peselLabel"/>
-        <Label fx:id="phone_numberLabel"/>
-        <Button text="Edytuj" onAction="#handleEdit"/>
+
+    <VBox fx:id="detailsBox" spacing="5.0" visible="false" alignment="CENTER">
+        <Label fx:id="fullNameLabel" />
+        <Label fx:id="birth_dateLabel" />
+        <Label fx:id="peselLabel" />
+        <Label fx:id="phone_numberLabel" />
+        <Button text="Edytuj" onAction="#handleEdit" />
     </VBox>
 
-    <Button text="Zamknij" onAction="#handleClose"/>
-
+    <VBox spacing="10.0" alignment="CENTER">
+        <Button text="Zamknij" onAction="#handleClose" />
+    </VBox>
 </VBox>

@@ -43,13 +43,13 @@ public class SearchUserController {
 
     @FXML
     private Label phone_numberLabel;
-    
+
     @FXML
     private VBox usersListBox;
-    
+
     @FXML
     private ListView<User> usersListView;
-    
+
     private ObservableList<User> usersObservableList = FXCollections.observableArrayList();
 
     private User foundUser = null;
@@ -60,20 +60,20 @@ public class SearchUserController {
     @FXML
     public void initialize() {
         if (resultLabel == null) {
-            System.out.println("BŁĄD: `resultLabel` NIE JEST ZAINICJALIZOWANY!");
+            System.out.println("BŁĄD: resultLabel NIE JEST ZAINICJALIZOWANY!");
         } else {
-            System.out.println(" `resultLabel` został poprawnie zainicjalizowany.");
+            System.out.println(" resultLabel został poprawnie zainicjalizowany.");
         }
-        
+
         // Hide boxes initially
         if (detailsBox != null) {
             detailsBox.setVisible(false);
         }
-        
+
         if (usersListBox != null) {
             usersListBox.setVisible(false);
         }
-        
+
         if (usersListView != null) {
             usersListView.setItems(usersObservableList);
         }
@@ -82,7 +82,7 @@ public class SearchUserController {
 
     public void setInitialSearchData(String name, String surname) {
         if (resultLabel == null) {
-            System.out.println(" BŁĄD: `resultLabel` nadal jest NULL. FXML mogło nie zostać załadowane!");
+            System.out.println(" BŁĄD: resultLabel nadal jest NULL. FXML mogło nie zostać załadowane!");
             return;
         }
 
@@ -106,15 +106,15 @@ public class SearchUserController {
             usersListBox.setVisible(false);
             return;
         }
-        
+
         try {
             List<User> foundUsers = null;
-            
+
             // Jeśli podano imię i nazwisko
             if (!name.isEmpty() && !surname.isEmpty()) {
                 // Szukaj dokładnych dopasowań
                 foundUsers = searchUserDAO.getAllUsersByNameAndSurname(name, surname);
-                
+
                 if (foundUsers.isEmpty()) {
                     // Jeśli nie ma dokładnych dopasowań, szukaj podobnych
                     foundUsers = searchUserDAO.searchUsersByName(name, surname);
@@ -123,7 +123,7 @@ public class SearchUserController {
                 // Szukaj po samym imieniu lub samym nazwisku
                 foundUsers = searchUserDAO.searchUsersByName(name, surname);
             }
-            
+
             // Pokaż wyniki
             if (foundUsers.isEmpty()) {
                 // Nie znaleziono użytkowników
@@ -150,7 +150,7 @@ public class SearchUserController {
             usersListBox.setVisible(false);
         }
     }
-    
+
     @FXML
     private void handleUserSelection() {
         User selectedUser = usersListView.getSelectionModel().getSelectedItem();
@@ -159,12 +159,12 @@ public class SearchUserController {
             showUserDetails(foundUser);
         }
     }
-    
+
     private void showUserDetails(User user) {
         fullNameLabel.setText("Imię i Nazwisko: " + user.getFirst_name() + " " + user.getLast_name());
         birth_dateLabel.setText("Data urodzenia: " + user.getBirth_date());
         peselLabel.setText("PESEL: " + user.getPesel());
-        
+
         detailsBox.setVisible(true);
         resultLabel.setText("");
     }
@@ -183,7 +183,7 @@ public class SearchUserController {
                 stage.setTitle("Edytuj użytkownika");
                 stage.setScene(new Scene(root, 400, 400));
                 stage.show();
-                
+
                 // Dodajemy nasłuchiwacz na zamknięcie okna
                 stage.setOnHidden(event -> {
                     try {

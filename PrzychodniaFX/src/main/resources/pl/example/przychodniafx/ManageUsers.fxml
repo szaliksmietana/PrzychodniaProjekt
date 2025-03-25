@@ -16,10 +16,13 @@
             <TableColumn text="PESEL" fx:id="peselColumn"/>
             <TableColumn text="Data urodzenia" fx:id="birth_dateColumn"/>
             <TableColumn text="Telefon" fx:id="phone_numberColumn"/>
+            <TableColumn text="Płeć" fx:id="genderColumn"/>
+            <TableColumn text="Zapomnij" fx:id="isForgottenColumn" />
+
         </columns>
     </TableView>
 
     <Button text="Edytuj użytkownika" onAction="#openEditUserWindow"/>
-    <Button text="Usuń użytkownika" onAction="#handleDeleteUser"/>
+    <Button text="Zapomnij użytkownika" onAction="#handleDeleteUser"/>
     <Button text="Zamknij" onAction="#handleClose"/>
 </VBox>

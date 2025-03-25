@@ -6,15 +6,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.util.Callback;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.dao.AddUserDAO;
-import pl.example.przychodniafx.dao.EditUserDAO;
 import pl.example.przychodniafx.dao.DeleteUserDAO;
 
 import java.sql.SQLException;
@@ -38,29 +39,53 @@ public class ManageUsersController {
     @FXML
     private TableColumn<User, String> birth_dateColumn;
 
-    //@FXML
-    //private TableColumn<User, String> phone_numberColumn;
+    @FXML
+    private TableColumn<User, String> genderColumn;
 
-    private ObservableList<User> userList = FXCollections.observableArrayList(
-            //new User("Jan", "Kowalski", "12345678901", "1990-05-15", "500123456"),
-            //new User("Anna", "Nowak", "09876543210", "1985-08-20", "600987654")
-    );
+    @FXML
+    private TableColumn<User, Boolean> isForgottenColumn;
+
+    private ObservableList<User> userList = FXCollections.observableArrayList();
+
     private final AddUserDAO UserDAO = new AddUserDAO();
     private final DeleteUserDAO deleteUserDAO = new DeleteUserDAO();
 
     @FXML
     public void initialize() {
+        // Aktywujemy edytowalność
+        userTable.setEditable(true);
+        isForgottenColumn.setEditable(true);
 
+        // Kolumny tekstowe
         first_nameColumn.setCellValueFactory(new PropertyValueFactory<>("first_name"));
         last_nameColumn.setCellValueFactory(new PropertyValueFactory<>("last_name"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
         birth_dateColumn.setCellValueFactory(new PropertyValueFactory<>("birth_date"));
-        //phone_numberColumn.setCellValueFactory(new PropertyValueFactory<>("phone_number"));
+
+        // Gender jako string
+        genderColumn.setCellValueFactory(cellData -> {
+            Character gender = cellData.getValue().getGender();
+            String display = "-";
+            if (gender != null) {
+                display = gender.equals('M') ? "Mężczyzna" : "Kobieta";
+            }
+            return new SimpleStringProperty(display);
+        });
+
+        // Checkbox kolumna: is_forgotten
+        isForgottenColumn.setCellValueFactory(param -> {
+            User user = param.getValue();
+            SimpleBooleanProperty property = new SimpleBooleanProperty(user.getIs_forgotten() != null && user.getIs_forgotten());
+            property.addListener((obs, oldVal, newVal) -> user.setIs_forgotten(newVal));
+            return property;
+        });
+        isForgottenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isForgottenColumn));
+
         LoadUsersFromDB();
     }
 
-    private void LoadUsersFromDB(){
-        try{
+    private void LoadUsersFromDB() {
+        try {
             List<User> users = UserDAO.getAllUsers();
             userList.clear();
             userList.addAll(users);
@@ -89,29 +114,28 @@ public class ManageUsersController {
 
             Stage stage = new Stage();
             stage.setTitle("Edytuj użytkownika");
-            stage.setScene(new Scene(root, 400, 400));
+            stage.setScene(new Scene(root, 600, 500)); // <-- zmieniony rozmiar
             stage.show();
-            
-            // Dodajemy nasłuchiwacz na zamknięcie okna
+
             stage.setOnHidden(event -> {
-                LoadUsersFromDB(); // Odśwież listę użytkowników
-                userTable.refresh(); // Odśwież widok tabeli
+                LoadUsersFromDB();
+                userTable.refresh();
             });
+
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie można otworzyć okna edycji użytkownika!", Alert.AlertType.ERROR);
         }
     }
 
+
     @FXML
     private void handleDeleteUser() {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();
-
         if (selectedUser == null) {
             showAlert("Błąd", "Nie wybrano użytkownika do usunięcia!", Alert.AlertType.WARNING);
             return;
         }
-
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Potwierdzenie");
@@ -134,12 +158,12 @@ public class ManageUsersController {
             }
         }
     }
+
     @FXML
     private void handleClose() {
         Stage stage = (Stage) userTable.getScene().getWindow();
         stage.close();
     }
-
 
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
@@ -147,6 +171,12 @@ public class ManageUsersController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    private void showStandardWindow(String title, Parent root) {
+        Stage stage = new Stage();
+        stage.setTitle(title);
+        stage.setScene(new Scene(root, 600, 500));
+        stage.show();
     }
 
 }
