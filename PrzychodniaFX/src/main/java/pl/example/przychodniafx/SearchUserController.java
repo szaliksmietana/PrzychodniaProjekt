@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.ListCell;
 import pl.example.przychodniafx.dao.SearchUserDAO;
 import pl.example.przychodniafx.model.User;
 
@@ -51,104 +52,122 @@ public class SearchUserController {
     private ListView<User> usersListView;
 
     private ObservableList<User> usersObservableList = FXCollections.observableArrayList();
-
     private User foundUser = null;
     private SearchUserDAO searchUserDAO = new SearchUserDAO();
-    private List<User> users = new ArrayList<>();
-
 
     @FXML
     public void initialize() {
-        if (resultLabel == null) {
-            System.out.println("BŁĄD: resultLabel NIE JEST ZAINICJALIZOWANY!");
-        } else {
-            System.out.println(" resultLabel został poprawnie zainicjalizowany.");
-        }
-
-        // Hide boxes initially
-        if (detailsBox != null) {
-            detailsBox.setVisible(false);
-        }
-
-        if (usersListBox != null) {
-            usersListBox.setVisible(false);
-        }
-
-        if (usersListView != null) {
-            usersListView.setItems(usersObservableList);
-        }
+        usersListView.setItems(usersObservableList);
+        usersListView.setCellFactory(lv -> new ListCell<User>() {
+            @Override
+            protected void updateItem(User user, boolean empty) {
+                super.updateItem(user, empty);
+                if (empty) {
+                    setText(null);
+                } else {
+                    setText(user.getFirst_name() + " " + user.getLast_name() + " (PESEL: " + user.getPesel() + ")");
+                }
+            }
+        });
+        
+        // Automatyczne wyszukiwanie przy wpisywaniu
+        first_nameField.textProperty().addListener((observable, oldValue, newValue) -> handleSearch());
+        last_nameField.textProperty().addListener((observable, oldValue, newValue) -> handleSearch());
+        
+        detailsBox.setVisible(false);
+        usersListBox.setVisible(false);
     }
 
-
     public void setInitialSearchData(String name, String surname) {
-        if (resultLabel == null) {
-            System.out.println(" BŁĄD: resultLabel nadal jest NULL. FXML mogło nie zostać załadowane!");
-            return;
-        }
-
         first_nameField.setText(name);
         last_nameField.setText(surname);
-
-        // Wyszukaj, jeśli podano przynajmniej jeden parametr
-        if (!name.isEmpty() || !surname.isEmpty()) {
-            handleSearch();
-        }
     }
 
     @FXML
     private void handleSearch() {
-        String name = first_nameField.getText().trim();
-        String surname = last_nameField.getText().trim();
+        String firstName = first_nameField.getText().trim();
+        String lastName = last_nameField.getText().trim();
 
-        if (name.isEmpty() && surname.isEmpty()) {
-            resultLabel.setText("Wprowadź imię lub nazwisko do wyszukania!");
-            detailsBox.setVisible(false);
-            usersListBox.setVisible(false);
+        if (firstName.isEmpty() && lastName.isEmpty()) {
+            resultLabel.setText("Wprowadź imię lub nazwisko.");
+            hideAllPanels();
             return;
         }
 
         try {
-            List<User> foundUsers = null;
+            List<User> foundUsers = searchUserDAO.searchUsersByName(firstName, lastName);
 
-            // Jeśli podano imię i nazwisko
-            if (!name.isEmpty() && !surname.isEmpty()) {
-                // Szukaj dokładnych dopasowań
-                foundUsers = searchUserDAO.getAllUsersByNameAndSurname(name, surname);
-
-                if (foundUsers.isEmpty()) {
-                    // Jeśli nie ma dokładnych dopasowań, szukaj podobnych
-                    foundUsers = searchUserDAO.searchUsersByName(name, surname);
-                }
-            } else {
-                // Szukaj po samym imieniu lub samym nazwisku
-                foundUsers = searchUserDAO.searchUsersByName(name, surname);
+            if (!foundUsers.isEmpty()) {
+                foundUsers.sort((user1, user2) -> {
+                    int score1 = calculateMatchScore(user1, firstName, lastName);
+                    int score2 = calculateMatchScore(user2, firstName, lastName);
+                    return score2 - score1;
+                });
             }
 
-            // Pokaż wyniki
-            if (foundUsers.isEmpty()) {
-                // Nie znaleziono użytkowników
-                usersListBox.setVisible(false);
-                detailsBox.setVisible(false);
-                resultLabel.setText("Nie znaleziono użytkownika.");
-            } else if (foundUsers.size() == 1) {
-                // Znaleziono dokładnie jednego użytkownika
-                foundUser = foundUsers.get(0);
-                showUserDetails(foundUser);
-                usersListBox.setVisible(false);
-            } else {
-                // Znaleziono wielu użytkowników
-                usersObservableList.clear();
-                usersObservableList.addAll(foundUsers);
-                usersListBox.setVisible(true);
-                detailsBox.setVisible(false);
-                resultLabel.setText("Znaleziono " + foundUsers.size() + " użytkowników.");
-            }
+            displaySearchResults(foundUsers);
         } catch (SQLException e) {
             e.printStackTrace();
             resultLabel.setText("Błąd podczas wyszukiwania: " + e.getMessage());
-            detailsBox.setVisible(false);
-            usersListBox.setVisible(false);
+            hideAllPanels();
         }
+    }
+
+    private void displaySearchResults(List<User> foundUsers) {
+        hideAllPanels();
+        
+        if (foundUsers.isEmpty()) {
+            resultLabel.setText("Nie znaleziono użytkownika.");
+        } else if (foundUsers.size() == 1) {
+            foundUser = foundUsers.get(0);
+            showUserDetails(foundUser);
+        } else {
+            usersObservableList.setAll(foundUsers);
+            usersListBox.setVisible(true);
+            usersListBox.setManaged(true);
+            resultLabel.setText("Znaleziono " + foundUsers.size() + " użytkowników.");
+        }
+    }
+
+    private void hideAllPanels() {
+        detailsBox.setVisible(false);
+        usersListBox.setVisible(false);
+        usersListBox.setManaged(false);
+    }
+
+    private int calculateMatchScore(User user, String searchFirstName, String searchLastName) {
+        int score = 0;
+        
+        if (!searchFirstName.isEmpty()) {
+            String firstName = user.getFirst_name().toLowerCase();
+            searchFirstName = searchFirstName.toLowerCase();
+            
+            if (firstName.equals(searchFirstName)) {
+                score += 100;
+            } else if (firstName.startsWith(searchFirstName)) {
+                score += 75;
+            } else if (firstName.contains(searchFirstName)) {
+                score += 50;
+            }
+        }
+        
+        if (!searchLastName.isEmpty()) {
+            String lastName = user.getLast_name().toLowerCase();
+            searchLastName = searchLastName.toLowerCase();
+            
+            if (lastName.equals(searchLastName)) {
+                score += 100;
+            } else if (lastName.startsWith(searchLastName)) {
+                score += 75;
+            } else if (lastName.contains(searchLastName)) {
+                score += 50;
+            }
+            
+            // Bonus za krótszą różnicę w długości nazwiska
+            score -= Math.abs(lastName.length() - searchLastName.length()) * 2;
+        }
+        
+        return score;
     }
 
     @FXML
@@ -157,14 +176,18 @@ public class SearchUserController {
         if (selectedUser != null) {
             foundUser = selectedUser;
             showUserDetails(foundUser);
+            usersListBox.setVisible(false);
+            usersListBox.setManaged(false);
         }
     }
 
     private void showUserDetails(User user) {
+        hideAllPanels();
+        
         fullNameLabel.setText("Imię i Nazwisko: " + user.getFirst_name() + " " + user.getLast_name());
         birth_dateLabel.setText("Data urodzenia: " + user.getBirth_date());
         peselLabel.setText("PESEL: " + user.getPesel());
-
+        
         detailsBox.setVisible(true);
         resultLabel.setText("");
     }
@@ -183,31 +206,29 @@ public class SearchUserController {
                 stage.setTitle("Edytuj użytkownika");
                 stage.setScene(new Scene(root, 400, 400));
                 stage.show();
-
-                // Dodajemy nasłuchiwacz na zamknięcie okna
-                stage.setOnHidden(event -> {
-                    try {
-                        // Odświeżenie danych użytkownika
-                        User refreshedUser = searchUserDAO.getUserById(foundUser.getUser_id());
-                        if (refreshedUser != null) {
-                            foundUser = refreshedUser;
-                            showUserDetails(foundUser);
-                        }
-                        // Odświeżenie listy użytkowników jeśli jest widoczna
-                        if (usersListView.isVisible()) {
-                            usersListView.refresh();
-                        }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        resultLabel.setText("Błąd podczas odświeżania danych: " + e.getMessage());
-                    }
-                });
+                
+                stage.setOnHidden(event -> refreshUserData());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
+    private void refreshUserData() {
+        try {
+            User refreshedUser = searchUserDAO.getUserById(foundUser.getUser_id());
+            if (refreshedUser != null) {
+                foundUser = refreshedUser;
+                showUserDetails(foundUser);
+            }
+            if (usersListView.isVisible()) {
+                handleSearch(); // Odśwież całą listę wyszukiwania
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            resultLabel.setText("Błąd podczas odświeżania danych: " + e.getMessage());
+        }
+    }
 
     @FXML
     private void handleClose() {

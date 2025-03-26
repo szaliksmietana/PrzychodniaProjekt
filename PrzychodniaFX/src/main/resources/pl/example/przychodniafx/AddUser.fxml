@@ -6,10 +6,15 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 
 <VBox spacing="10.0" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pl.example.przychodniafx.AddUserController">
+    
+    <padding>
+        <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+    </padding>
 
     <Label text="Dodaj nowego użytkownika" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
@@ -23,6 +28,9 @@
         <RadioButton fx:id="MRadio" text="Mężczyzna" />
         <RadioButton fx:id="FRadio" text="Kobieta" />
     </HBox>
+
+    <!-- Label do wyświetlania komunikatów -->
+    <Label fx:id="resultLabel" wrapText="true" style="-fx-font-size: 12px;"/>
 
     <Button text="Zapisz" onAction="#handleSave"/>
     <Button text="Anuluj" onAction="#handleCancel"/>

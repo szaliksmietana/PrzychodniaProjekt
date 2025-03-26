@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import pl.example.przychodniafx.dao.AddUserDAO;
@@ -23,6 +24,9 @@ public class AddUserController {
 
     @FXML
     private TextField birth_dateField;
+
+    @FXML
+    private Label resultLabel;
 
     //@FXML
     //private TextField phone_numberField;
@@ -50,23 +54,21 @@ public class AddUserController {
 
     @FXML
     private void handleSave() {
-
         String name = first_nameField.getText();
         String surname = last_nameField.getText();
         String pesel = peselField.getText();
         String birthDate = birth_dateField.getText();
-       // String phone = phone_numberField.getText();
 
         Character gender = getSelectedGender();
 
-
         if (name.isEmpty() || surname.isEmpty() || pesel.isEmpty() || birthDate.isEmpty()) {
-            System.out.println("Wszystkie pola muszą być wypełnione!");
+            showErrorMessage("Wszystkie pola muszą być wypełnione!");
             return;
         }
+
         //Walidacja numeru pesel
         if (!isValidPesel(pesel)) {
-            System.out.println("Błąd, Nieprawidłowy numer PESEL!");
+            showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
             return;
         }
 
@@ -74,7 +76,7 @@ public class AddUserController {
             // Check if user with this PESEL already exists
             User existingUser = UserDAO.getUserByPesel(pesel);
             if (existingUser != null) {
-                System.out.println("Błąd, Użytkownik z podanym numerem PESEL już istnieje!");
+                showErrorMessage("Błąd: Użytkownik z podanym numerem PESEL już istnieje!");
                 return;
             }
 
@@ -89,12 +91,12 @@ public class AddUserController {
             user.setAccess_level(1);
             UserDAO.addUser(user);
 
-            System.out.println("Sukces, dodano użytkownika: " + name + " " + surname);
+            showSuccessMessage("Sukces: dodano użytkownika " + name + " " + surname);
             closeWindow();
 
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Błąd, Nie udało się dodać użytkownika: " + e.getMessage());
+            showErrorMessage("Błąd: Nie udało się dodać użytkownika: " + e.getMessage());
         }
     }
 
@@ -107,6 +109,7 @@ public class AddUserController {
         Stage stage = (Stage) first_nameField.getScene().getWindow();
         stage.close();
     }
+
     private Character getSelectedGender() {
         if (FRadio.isSelected()) {
             return 'K';  // K for Kobieta (Female)
@@ -114,7 +117,6 @@ public class AddUserController {
             return 'M';  // M for Mężczyzna (Male)
         }
     }
-
 
     private boolean isValidPesel(String pesel) {
         // Funkcja do walidacji numeru pesel
@@ -128,5 +130,19 @@ public class AddUserController {
             }
         }
         return true;
+    }
+
+    private void showErrorMessage(String message) {
+        if (resultLabel != null) {
+            resultLabel.setStyle("-fx-text-fill: red;");
+            resultLabel.setText(message);
+        }
+    }
+
+    private void showSuccessMessage(String message) {
+        if (resultLabel != null) {
+            resultLabel.setStyle("-fx-text-fill: green;");
+            resultLabel.setText(message);
+        }
     }
 }

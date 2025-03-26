@@ -81,14 +81,14 @@ public class SearchUserDAO {
     }
 
     public List<User> getAllUsersByNameAndSurname(String firstName, String lastName) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE first_name = ? AND last_name = ?";
+        String sql = "SELECT * FROM Users WHERE first_name LIKE ? AND last_name LIKE ?";
         List<User> users = new ArrayList<>();
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, firstName);
-            pstmt.setString(2, lastName);
+            pstmt.setString(1, "%" + firstName + "%");
+            pstmt.setString(2, "%" + lastName + "%");
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
