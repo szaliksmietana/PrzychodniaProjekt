@@ -46,6 +46,20 @@ public class AddUserDAO {
             }
         }
     }
+    //czy istnieje pesel
+    public boolean isPeselExists(String pesel) throws SQLException {
+        String query = "SELECT COUNT(*) FROM users WHERE pesel = ?";
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, pesel);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
     //Szukanie Usera po peselu
     public User getUserByPesel(String pesel) throws SQLException {
         String sql = "SELECT * FROM Users WHERE pesel = ?";

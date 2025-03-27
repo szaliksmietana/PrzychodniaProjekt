@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.model.User;
+
 import java.sql.SQLException;
 
 public class AddUserController {
@@ -28,9 +29,6 @@ public class AddUserController {
     @FXML
     private Label resultLabel;
 
-    //@FXML
-    //private TextField phone_numberField;
-
     @FXML
     private RadioButton MRadio;
 
@@ -43,12 +41,9 @@ public class AddUserController {
 
     @FXML
     public void initialize() {
-        // Create a toggle group for the radio buttons
         genderGroup = new ToggleGroup();
         MRadio.setToggleGroup(genderGroup);
         FRadio.setToggleGroup(genderGroup);
-
-        // Set male as default selection
         MRadio.setSelected(true);
     }
 
@@ -58,7 +53,6 @@ public class AddUserController {
         String surname = last_nameField.getText();
         String pesel = peselField.getText();
         String birthDate = birth_dateField.getText();
-
         Character gender = getSelectedGender();
 
         if (name.isEmpty() || surname.isEmpty() || pesel.isEmpty() || birthDate.isEmpty()) {
@@ -66,29 +60,45 @@ public class AddUserController {
             return;
         }
 
-        //Walidacja numeru pesel
-        if (!isValidPesel(pesel)) {
+        // Walidacja długości i formatu PESEL
+        if (pesel.length() != 11 || !pesel.matches("\\d+")) {
             showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
             return;
         }
 
+        // Tworzenie obiektu walidatora
+        PeselValidator validator = new PeselValidator(pesel);
+
+        // Sprawdzenie poprawności PESEL (checksum, miesiąc, dzień)
+        if (!validator.isValid()) {
+            showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
+            return;
+        }
+
+        // Sprawdzenie zgodności daty z PESEL-em
+        if (!validator.matchesBirthDate(birthDate)) {
+            showErrorMessage("Błąd: PESEL nie zgadza się z datą urodzenia!");
+            return;
+        }
+        if (!validator.matchesGender(gender)) {
+            showErrorMessage("Błąd: PESEL nie zgadza się z płcią!");
+            return;
+        }
+
+
         try {
-            // Check if user with this PESEL already exists
-            User existingUser = UserDAO.getUserByPesel(pesel);
-            if (existingUser != null) {
-                showErrorMessage("Błąd: Użytkownik z podanym numerem PESEL już istnieje!");
+            // Ukryty komunikat przy duplikacie peselu
+            if (UserDAO.isPeselExists(pesel)) {
+                showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
                 return;
             }
 
             User user = new User(name, surname, pesel, birthDate);
-
             user.setGender(gender);
-            // Set default login value (using PESEL as login)
             user.setLogin(pesel);
-            // Set default password value (using PESEL as password)
             user.setPassword(pesel);
-            // Set default access level (1 for basic user)
             user.setAccess_level(1);
+
             UserDAO.addUser(user);
 
             showSuccessMessage("Sukces: dodano użytkownika " + name + " " + surname);
@@ -99,6 +109,7 @@ public class AddUserController {
             showErrorMessage("Błąd: Nie udało się dodać użytkownika: " + e.getMessage());
         }
     }
+
 
     @FXML
     private void handleCancel() {
@@ -112,24 +123,10 @@ public class AddUserController {
 
     private Character getSelectedGender() {
         if (FRadio.isSelected()) {
-            return 'K';  // K for Kobieta (Female)
+            return 'K';
         } else {
-            return 'M';  // M for Mężczyzna (Male)
+            return 'M';
         }
-    }
-
-    private boolean isValidPesel(String pesel) {
-        // Funkcja do walidacji numeru pesel
-        if (pesel == null || pesel.length() != 11) {
-            return false;
-        }
-
-        for (char c : pesel.toCharArray()) {
-            if (!Character.isDigit(c)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void showErrorMessage(String message) {
