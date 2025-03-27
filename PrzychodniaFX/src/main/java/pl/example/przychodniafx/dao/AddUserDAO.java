@@ -92,6 +92,13 @@ public class AddUserDAO {
         );
 
         user.setUser_id(rs.getInt("user_id"));
+        user.setLogin(rs.getString("login"));
+        user.setPassword(rs.getString("password"));
+        user.setAccess_level(rs.getInt("access_level"));
+        
+        // Pobieranie flagi is_forgotten
+        user.setIs_forgotten(rs.getBoolean("is_forgotten"));
+        
         /*
         user.setCity(rs.getString("city"));
         user.setPostal_code(rs.getString("postal_code"));
@@ -104,7 +111,6 @@ public class AddUserDAO {
         if (genderStr != null && !genderStr.isEmpty()) {
             user.setGender(genderStr.charAt(0));
         }
-
 
         return user;
     }

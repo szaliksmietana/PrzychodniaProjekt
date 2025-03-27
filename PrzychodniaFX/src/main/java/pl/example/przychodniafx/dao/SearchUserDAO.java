@@ -10,7 +10,7 @@ import java.util.List;
 public class SearchUserDAO {
     
     public User getUserByNameAndSurname(String firstName, String lastName) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE first_name = ? AND last_name = ?";
+        String sql = "SELECT * FROM Users WHERE first_name = ? AND last_name = ? AND (is_forgotten IS NULL OR is_forgotten = FALSE)";
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -31,6 +31,8 @@ public class SearchUserDAO {
     public List<User> searchUsersByName(String firstName, String lastName) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM Users WHERE 1=1");
         List<Object> params = new ArrayList<>();
+
+        sqlBuilder.append(" AND (is_forgotten IS NULL OR is_forgotten = FALSE)");
 
         if (firstName != null && !firstName.isEmpty()) {
             sqlBuilder.append(" AND first_name LIKE ?");
@@ -63,7 +65,7 @@ public class SearchUserDAO {
     }
 
     public User getUserById(int userId) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE user_id = ?";
+        String sql = "SELECT * FROM Users WHERE user_id = ? AND (is_forgotten IS NULL OR is_forgotten = FALSE)";
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -81,7 +83,7 @@ public class SearchUserDAO {
     }
 
     public List<User> getAllUsersByNameAndSurname(String firstName, String lastName) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE first_name LIKE ? AND last_name LIKE ?";
+        String sql = "SELECT * FROM Users WHERE first_name LIKE ? AND last_name LIKE ? AND (is_forgotten IS NULL OR is_forgotten = FALSE)";
         List<User> users = new ArrayList<>();
 
         try (Connection conn = DbConnection.connect();

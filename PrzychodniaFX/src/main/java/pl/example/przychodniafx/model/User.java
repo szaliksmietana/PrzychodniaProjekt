@@ -15,6 +15,10 @@ public class User {
     private Boolean is_forgotten;
     private Integer access_level;
 
+    public User() {
+        // Konstruktor bezparametrowy
+    }
+    
     public User(String first_name, String last_name, String pesel, String birth_date) {
         this.first_name = first_name;
         this.last_name = last_name;

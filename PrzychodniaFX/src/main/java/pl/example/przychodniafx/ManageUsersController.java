@@ -44,8 +44,12 @@ public class ManageUsersController {
 
     @FXML
     private TableColumn<User, Boolean> isForgottenColumn;
+    
+    @FXML
+    private CheckBox showForgottenUsersCheckbox;
 
     private ObservableList<User> userList = FXCollections.observableArrayList();
+    private ObservableList<User> forgottenUserList = FXCollections.observableArrayList();
 
     private final AddUserDAO UserDAO = new AddUserDAO();
     private final ForgetUserDAO forgetUserDAO = new ForgetUserDAO();
@@ -86,8 +90,52 @@ public class ManageUsersController {
             return property;
         });
         isForgottenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isForgottenColumn));
+        
+        // Add listener for showForgottenUsersCheckbox if it exists in the FXML
+        if (showForgottenUsersCheckbox != null) {
+            showForgottenUsersCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal) {
+                    loadForgottenUsersFromDB();
+                } else {
+                    LoadUsersFromDB();
+                }
+            });
+        }
 
         LoadUsersFromDB();
+    }
+    
+    @FXML
+    private void toggleForgottenUsers() {
+        if (showForgottenUsersCheckbox.isSelected()) {
+            loadForgottenUsersFromDB();
+        } else {
+            LoadUsersFromDB();
+        }
+    }
+    
+    private void loadForgottenUsersFromDB() {
+        try {
+            List<User> users = UserDAO.getAllUsers();
+            forgottenUserList.clear();
+            
+            // Pobierz liste ID zapomnianych użytkowników
+            List<Integer> forgottenIds = forgetUserDAO.getAllForgottenUserIds();
+            
+            // Filtruj użytkowników, którzy są w tabeli forgottenUsers
+            users.stream()
+                .filter(user -> user.getIs_forgotten() != null && user.getIs_forgotten() 
+                       || forgottenIds.contains(user.getUser_id()))
+                .forEach(forgottenUserList::add);
+                
+            userTable.setItems(forgottenUserList);
+            
+            // Disable checkbox column when viewing forgotten users
+            isForgottenColumn.setEditable(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Błąd", "Nie udało się załadować listy zapomnianych użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
@@ -133,6 +181,9 @@ public class ManageUsersController {
                 .filter(user -> user.getIs_forgotten() == null || !user.getIs_forgotten())
                 .forEach(userList::add);
             userTable.setItems(userList);
+            
+            // Re-enable checkbox column when viewing regular users
+            isForgottenColumn.setEditable(true);
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie udało się załadować listy użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
