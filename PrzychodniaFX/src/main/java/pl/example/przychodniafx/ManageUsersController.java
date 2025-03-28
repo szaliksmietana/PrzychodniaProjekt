@@ -48,6 +48,9 @@ public class ManageUsersController {
     @FXML
     private CheckBox showForgottenUsersCheckbox;
 
+    @FXML
+    private Button forgetUserButton;
+
     private ObservableList<User> userList = FXCollections.observableArrayList();
     private ObservableList<User> forgottenUserList = FXCollections.observableArrayList();
 
@@ -96,10 +99,17 @@ public class ManageUsersController {
             showForgottenUsersCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal) {
                     loadForgottenUsersFromDB();
+                    // Dezaktywuj przycisk "Zapomnij użytkownika" dla zapomnianych użytkowników
+                    forgetUserButton.setDisable(true);
                 } else {
                     LoadUsersFromDB();
+                    // Aktywuj przycisk "Zapomnij użytkownika" dla normalnych użytkowników
+                    forgetUserButton.setDisable(false);
                 }
             });
+            
+            // Inicjalizacja stanu przycisku forgetUserButton
+            forgetUserButton.setDisable(showForgottenUsersCheckbox.isSelected());
         }
 
         LoadUsersFromDB();
@@ -109,8 +119,12 @@ public class ManageUsersController {
     private void toggleForgottenUsers() {
         if (showForgottenUsersCheckbox.isSelected()) {
             loadForgottenUsersFromDB();
+            // Dezaktywuj przycisk "Zapomnij użytkownika" dla zapomnianych użytkowników
+            forgetUserButton.setDisable(true);
         } else {
             LoadUsersFromDB();
+            // Aktywuj przycisk "Zapomnij użytkownika" dla normalnych użytkowników
+            forgetUserButton.setDisable(false);
         }
     }
     
@@ -132,6 +146,9 @@ public class ManageUsersController {
             
             // Disable checkbox column when viewing forgotten users
             isForgottenColumn.setEditable(false);
+            
+            // Dezaktywuj przycisk "Zapomnij użytkownika" gdy wyświetlamy zapomnianych użytkowników
+            forgetUserButton.setDisable(true);
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie udało się załadować listy zapomnianych użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -184,6 +201,9 @@ public class ManageUsersController {
             
             // Re-enable checkbox column when viewing regular users
             isForgottenColumn.setEditable(true);
+            
+            // Aktywuj przycisk "Zapomnij użytkownika" gdy wyświetlamy aktywnych użytkowników
+            forgetUserButton.setDisable(false);
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Błąd", "Nie udało się załadować listy użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
