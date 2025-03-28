@@ -33,7 +33,7 @@
 
     <HBox alignment="CENTER" spacing="10.0">
         <Button text="Edytuj użytkownika" onAction="#openEditUserWindow"/>
-        <Button text="Zapomnij użytkownika" onAction="#handleForgetUserButton"/>
+        <Button fx:id="forgetUserButton" text="Zapomnij użytkownika" onAction="#handleForgetUserButton"/>
         <Button text="Zamknij" onAction="#handleClose"/>
     </HBox>
 </VBox>
