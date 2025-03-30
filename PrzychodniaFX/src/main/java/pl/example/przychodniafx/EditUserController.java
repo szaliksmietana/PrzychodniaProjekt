@@ -58,7 +58,7 @@ public class EditUserController {
 
             userToEdit.setFirst_name(name);
             userToEdit.setLast_name(surname);
-            userToEdit.setPesel(pesel);
+            //userToEdit.setPesel(pesel);
             userToEdit.setBirth_date(birthDate);
 
             try {

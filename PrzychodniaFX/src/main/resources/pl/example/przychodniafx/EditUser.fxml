@@ -13,7 +13,7 @@
 
     <TextField fx:id="first_nameField" promptText="Imię"/>
     <TextField fx:id="last_nameField" promptText="Nazwisko"/>
-    <TextField fx:id="peselField" promptText="PESEL"/>
+    <TextField fx:id="peselField" promptText="PESEL" editable="false"/>
     <TextField fx:id="birth_dateField" promptText="Data urodzenia (YYYY-MM-DD)"/>
     <TextField fx:id="phone_numberField" promptText="Telefon"/>
 
