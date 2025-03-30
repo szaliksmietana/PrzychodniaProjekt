@@ -12,11 +12,13 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.dao.ForgetUserDAO;
+import pl.example.przychodniafx.dao.SearchForgottenUsersDAO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -51,11 +53,21 @@ public class ManageUsersController {
     @FXML
     private Button forgetUserButton;
 
+    @FXML
+    private TextField searchForgottenField;
+
+    @FXML
+    private Button searchForgottenButton;
+
+    @FXML
+    private HBox forgottenSearchBox;
+
     private ObservableList<User> userList = FXCollections.observableArrayList();
     private ObservableList<User> forgottenUserList = FXCollections.observableArrayList();
 
     private final AddUserDAO UserDAO = new AddUserDAO();
     private final ForgetUserDAO forgetUserDAO = new ForgetUserDAO();
+    private final SearchForgottenUsersDAO searchForgottenUsersDAO = new SearchForgottenUsersDAO();
 
     @FXML
     public void initialize() {
@@ -93,16 +105,36 @@ public class ManageUsersController {
             return property;
         });
         isForgottenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isForgottenColumn));
-        
+
+
+        // Ukryj panel wyszukiwania zapomnianych użytkowników na początku
+        if (forgottenSearchBox != null) {
+            forgottenSearchBox.setVisible(false);
+            forgottenSearchBox.setManaged(false);
+        }
+
+
         // Add listener for showForgottenUsersCheckbox if it exists in the FXML
         if (showForgottenUsersCheckbox != null) {
             showForgottenUsersCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal) {
                     loadForgottenUsersFromDB();
+
+                    //Pokaz panel wyszukiwania zapomianych użytkowników
+                    if(forgottenSearchBox != null) {
+                        forgottenSearchBox.setVisible(true);
+                        forgottenSearchBox.setManaged(true);
+                    }
                     // Dezaktywuj przycisk "Zapomnij użytkownika" dla zapomnianych użytkowników
                     forgetUserButton.setDisable(true);
                 } else {
                     LoadUsersFromDB();
+
+                    if (forgottenSearchBox != null) {
+                        forgottenSearchBox.setVisible(false);
+                        forgottenSearchBox.setManaged(false);
+                    }
+
                     // Aktywuj przycisk "Zapomnij użytkownika" dla normalnych użytkowników
                     forgetUserButton.setDisable(false);
                 }
@@ -119,15 +151,75 @@ public class ManageUsersController {
     private void toggleForgottenUsers() {
         if (showForgottenUsersCheckbox.isSelected()) {
             loadForgottenUsersFromDB();
+
+            if (forgottenSearchBox != null) {
+                forgottenSearchBox.setVisible(true);
+                forgottenSearchBox.setManaged(true);
+            }
             // Dezaktywuj przycisk "Zapomnij użytkownika" dla zapomnianych użytkowników
             forgetUserButton.setDisable(true);
         } else {
             LoadUsersFromDB();
+
+            if (forgottenSearchBox != null) {
+                forgottenSearchBox.setVisible(false);
+                forgottenSearchBox.setManaged(false);
+            }
+
             // Aktywuj przycisk "Zapomnij użytkownika" dla normalnych użytkowników
             forgetUserButton.setDisable(false);
         }
     }
-    
+
+
+    @FXML
+    private void searchForgottenUsers() {
+        String searchText = searchForgottenField.getText().trim();
+
+        if (searchText.isEmpty()) {
+            // Jeśli pole jest puste, załaduj wszystkich zapomnianych użytkowników
+            loadForgottenUsersFromDB();
+            return;
+        }
+
+        try {
+            // Sprawdź czy tekst zawiera spację, co może wskazywać na szukanie po imieniu i nazwisku
+            if (searchText.contains(" ")) {
+                String[] parts = searchText.split("\\s+", 2);
+                String firstName = parts[0];
+                String lastName = parts[1];
+
+                // Szukaj po imieniu i nazwisku
+                List<User> foundUsers = searchForgottenUsersDAO.getAllForgottenUsersByNameAndSurname(firstName, lastName);
+                updateForgottenUsersList(foundUsers);
+            } else {
+                // Szukaj po imieniu lub nazwisku (jedno pole)
+                List<User> foundByFirstName = searchForgottenUsersDAO.searchForgottenUsersByName(searchText, "");
+                List<User> foundByLastName = searchForgottenUsersDAO.searchForgottenUsersByName("", searchText);
+
+                // Połącz wyniki, ale unikaj duplikatów
+                foundByFirstName.removeAll(foundByLastName);
+                foundByFirstName.addAll(foundByLastName);
+
+                updateForgottenUsersList(foundByFirstName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Błąd", "Nie udało się wyszukać zapomnianych użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+
+    private void updateForgottenUsersList(List<User> users) {
+        forgottenUserList.clear();
+        forgottenUserList.addAll(users);
+        userTable.setItems(forgottenUserList);
+
+        if (users.isEmpty()) {
+            showAlert("Informacja", "Nie znaleziono zapomnianych użytkowników spełniających kryteria wyszukiwania.", Alert.AlertType.INFORMATION);
+        }
+    }
+
     private void loadForgottenUsersFromDB() {
         try {
             List<User> users = UserDAO.getAllUsers();
