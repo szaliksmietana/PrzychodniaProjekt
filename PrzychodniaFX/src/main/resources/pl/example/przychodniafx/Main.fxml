@@ -15,11 +15,4 @@
     <Button text="Dodaj usera" onAction="#handleAddUser"/>
     <Button text="Zarządzanie użytkownikami" onAction="#handleManageUsers"/>
     
-    <Label text="Szybkie wyszukiwanie (wprowadź imię lub nazwisko lub oba):"/>
-    <HBox spacing="10.0" alignment="CENTER">
-        <TextField fx:id="first_nameField" promptText="Imię" prefWidth="150"/>
-        <TextField fx:id="last_nameField" promptText="Nazwisko" prefWidth="150"/>
-        <Button text="Wyszukaj" onAction="#handleSearchUser"/>
-    </HBox>
-
 </VBox>
