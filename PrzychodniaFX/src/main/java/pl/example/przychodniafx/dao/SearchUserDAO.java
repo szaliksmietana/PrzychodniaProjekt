@@ -8,31 +8,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchUserDAO {
-    
-    public User getUserByNameAndSurname(String firstName, String lastName) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE first_name = ? AND last_name = ? AND (is_forgotten IS NULL OR is_forgotten = FALSE)";
 
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, firstName);
-            pstmt.setString(2, lastName);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return extractUserFromResultSet(rs);
-                }
-            }
+    public List<User> searchUsersByCombinedName(String searchText, boolean showForgotten) throws SQLException {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return getAllUsers(showForgotten);
         }
 
-        return null;
+        // Check if text contains space to separate first and last name
+        if (searchText.contains(" ")) {
+            String[] parts = searchText.split("\\s+", 2);
+            String firstName = parts[0];
+            String lastName = parts[1];
+            return searchUsersByName(firstName, lastName, showForgotten);
+        } else {
+            // Search by either first or last name
+            List<User> foundByFirstName = searchUsersByName(searchText, "", showForgotten);
+            List<User> foundByLastName = searchUsersByName("", searchText, showForgotten);
+
+            // Combine results, avoiding duplicates
+            for (User user : foundByLastName) {
+                if (!foundByFirstName.contains(user)) {
+                    foundByFirstName.add(user);
+                }
+            }
+
+            return foundByFirstName;
+        }
     }
 
-    public List<User> searchUsersByName(String firstName, String lastName) throws SQLException {
+    public List<User> searchUsersByName(String firstName, String lastName, boolean showForgotten) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM Users WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
-        sqlBuilder.append(" AND (is_forgotten IS NULL OR is_forgotten = FALSE)");
+        if (showForgotten) {
+            sqlBuilder.append(" AND is_forgotten = TRUE");
+        } else {
+            sqlBuilder.append(" AND (is_forgotten IS NULL OR is_forgotten = FALSE)");
+        }
 
         if (firstName != null && !firstName.isEmpty()) {
             sqlBuilder.append(" AND first_name LIKE ?");
@@ -64,8 +76,16 @@ public class SearchUserDAO {
         return users;
     }
 
-    public User getUserById(int userId) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE user_id = ? AND (is_forgotten IS NULL OR is_forgotten = FALSE)";
+    public User getUserById(int userId, boolean showForgotten) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM Users WHERE user_id = ?");
+
+        if (showForgotten) {
+            sqlBuilder.append(" AND is_forgotten = TRUE");
+        } else {
+            sqlBuilder.append(" AND (is_forgotten IS NULL OR is_forgotten = FALSE)");
+        }
+
+        String sql = sqlBuilder.toString();
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -82,21 +102,24 @@ public class SearchUserDAO {
         return null;
     }
 
-    public List<User> getAllUsersByNameAndSurname(String firstName, String lastName) throws SQLException {
-        String sql = "SELECT * FROM Users WHERE first_name LIKE ? AND last_name LIKE ? AND (is_forgotten IS NULL OR is_forgotten = FALSE)";
+    public List<User> getAllUsers(boolean showForgotten) throws SQLException {
+        String sql;
+
+        if (showForgotten) {
+            sql = "SELECT * FROM Users WHERE is_forgotten = TRUE";
+        } else {
+            sql = "SELECT * FROM Users WHERE is_forgotten IS NULL OR is_forgotten = FALSE";
+        }
+
         List<User> users = new ArrayList<>();
 
         try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-            pstmt.setString(1, "%" + firstName + "%");
-            pstmt.setString(2, "%" + lastName + "%");
-
-            try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     users.add(extractUserFromResultSet(rs));
                 }
-            }
         }
 
         return users;

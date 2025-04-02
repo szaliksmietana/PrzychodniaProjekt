@@ -89,7 +89,7 @@ public class AddUserController {
         try {
             // Ukryty komunikat przy duplikacie peselu
             if (UserDAO.isPeselExists(pesel)) {
-                showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
+                showErrorMessage("Błąd: Istnieje user z takim samym peselem!");
                 return;
             }
 

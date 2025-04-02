@@ -95,7 +95,7 @@ public class SearchUserController {
         }
 
         try {
-            List<User> foundUsers = searchUserDAO.searchUsersByName(firstName, lastName);
+            List<User> foundUsers = searchUserDAO.searchUsersByName(firstName, lastName, false);
 
             if (!foundUsers.isEmpty()) {
                 foundUsers.sort((user1, user2) -> {
@@ -216,7 +216,7 @@ public class SearchUserController {
 
     private void refreshUserData() {
         try {
-            User refreshedUser = searchUserDAO.getUserById(foundUser.getUser_id());
+            User refreshedUser = searchUserDAO.getUserById(foundUser.getUser_id(), false);
             if (refreshedUser != null) {
                 foundUser = refreshedUser;
                 showUserDetails(foundUser);
