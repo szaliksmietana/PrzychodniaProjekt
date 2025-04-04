@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10.0" alignment="CENTER" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:controller="pl.example.przychodniafx.UserDetailsController">
+
+    <Label fx:id="nameLabel" text="Imię i nazwisko:"/>
+    <Label fx:id="peselLabel" text="PESEL:"/>
+    <Label fx:id="birthDateLabel" text="Data urodzenia:"/>
+    <Label fx:id="phoneLabel" text="Telefon:"/>
+    <Label fx:id="genderLabel" text="Płeć:"/>
+
+    <Button text="Edytuj użytkownika" onAction="#handleEditUser"/>
+    <Button text="Zamknij" onAction="#handleClose"/>
+</VBox>
