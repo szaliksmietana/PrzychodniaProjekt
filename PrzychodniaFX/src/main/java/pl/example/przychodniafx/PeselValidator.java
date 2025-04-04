@@ -80,7 +80,6 @@ public class PeselValidator {
             int year = Integer.parseInt(parts[0]);
             int month = Integer.parseInt(parts[1]);
             int day = Integer.parseInt(parts[2]);
-
             return year == getBirthYear() &&
                     month == getBirthMonth() &&
                     day == getBirthDay();

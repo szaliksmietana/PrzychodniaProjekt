@@ -25,10 +25,22 @@ public class MainController {
 
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(root, 550, 400));
+
+            // Dostosuj rozmiar w zależności od otwieranego FXML
+            Scene scene;
+            if (fxmlPath.contains("AddUser.fxml")) {
+                scene = new Scene(root, 550, 500);
+            } else if (fxmlPath.contains("ManageUsers.fxml")) {
+                scene = new Scene(root, 600, 600);
+            } else {
+                scene = new Scene(root, 600, 400);
+            }
+
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

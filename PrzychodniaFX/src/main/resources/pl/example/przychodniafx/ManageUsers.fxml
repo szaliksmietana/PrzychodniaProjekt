@@ -44,7 +44,7 @@
     </TableView>
 
     <HBox alignment="CENTER" spacing="10.0">
-        <Button text="Podgląd danych" onAction="#openEditUserWindow"/>
+        <Button text="Podgląd danych" onAction="#handlePreviewUser"/>
         <Button fx:id="forgetUserButton" text="Zapomnij użytkownika" onAction="#handleForgetUserButton"/>
         <Button text="Zamknij" onAction="#handleClose"/>
     </HBox>

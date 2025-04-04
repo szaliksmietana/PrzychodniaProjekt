@@ -291,36 +291,32 @@ public class ManageUsersController {
     }
 
     @FXML
-    private void openEditUserWindow() {
+    private void handlePreviewUser() {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();
 
         if (selectedUser == null) {
-            showAlert("Błąd", "Nie wybrano użytkownika do edycji!", Alert.AlertType.WARNING);
+            showAlert("Błąd", "Nie wybrano użytkownika do podglądu!", Alert.AlertType.WARNING);
             return;
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/pl/example/przychodniafx/EditUser.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDetails.fxml"));
             Parent root = loader.load();
 
-            EditUserController controller = loader.getController();
-            controller.setUserData(selectedUser);
+            UserDetailsController controller = loader.getController();
+            controller.setUser(selectedUser);
 
             Stage stage = new Stage();
-            stage.setTitle("Edytuj użytkownika");
-            stage.setScene(new Scene(root, 600, 500));
+            stage.setTitle("Podgląd danych użytkownika");
+            stage.setScene(new Scene(root, 400, 400));
             stage.show();
-
-            stage.setOnHidden(event -> {
-                LoadUsersFromDB();
-                userTable.refresh();
-            });
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Błąd", "Nie można otworzyć okna edycji użytkownika!", Alert.AlertType.ERROR);
+            showAlert("Błąd", "Nie można otworzyć okna podglądu użytkownika!", Alert.AlertType.ERROR);
         }
     }
+
 
     @FXML
     private void handleClose() {
