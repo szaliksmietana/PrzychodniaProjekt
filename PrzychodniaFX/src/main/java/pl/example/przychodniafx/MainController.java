@@ -17,6 +17,11 @@ public class MainController {
     private void handleManageUsers() {
         openWindow("/pl/example/przychodniafx/ManageUsers.fxml", "Zarządzanie Użytkownikami");
     }
+    
+    @FXML
+    private void handleListPermissions() {
+        openWindow("/pl/example/przychodniafx/ListPermissions.fxml", "Przegląd listy uprawnień");
+    }
 
     private void openWindow(String fxmlPath, String title) {
         try {
@@ -26,12 +31,14 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle(title);
 
-            // Dostosuj rozmiar w zależności od otwieranego FXML
+
             Scene scene;
             if (fxmlPath.contains("AddUser.fxml")) {
-                scene = new Scene(root, 550, 500);
+                scene = new Scene(root, 550, 620);
             } else if (fxmlPath.contains("ManageUsers.fxml")) {
-                scene = new Scene(root, 600, 600);
+                scene = new Scene(root, 800, 600);
+            } else if (fxmlPath.contains("ListPermissions.fxml")) {
+                scene = new Scene(root, 800, 600);
             } else {
                 scene = new Scene(root, 600, 400);
             }

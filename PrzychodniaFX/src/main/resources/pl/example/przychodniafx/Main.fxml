@@ -14,5 +14,6 @@
 
     <Button text="Dodaj usera" onAction="#handleAddUser"/>
     <Button text="Zarządzanie użytkownikami" onAction="#handleManageUsers"/>
+    <Button text="Przegląd listy uprawnień" onAction="#handleListPermissions"/>
     
 </VBox>

@@ -4,9 +4,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
+
 
 <VBox spacing="10.0" alignment="TOP_LEFT" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -46,6 +48,11 @@
         <RadioButton fx:id="FRadio" text="Kobieta"/>
     </HBox>
 
+    <Label text="Rola:"/>
+    <ComboBox fx:id="roleComboBox" prefWidth="200"/>
+
+    <Label text="Uprawnienia przypisane do roli:" style="-fx-font-style: italic;"/>
+    <Label fx:id="permissionsLabel" wrapText="true" style="-fx-font-size: 12px;"/>
     <!-- Label do komunikatów -->
     <Label fx:id="resultLabel" wrapText="true" style="-fx-font-size: 12px;"/>
 

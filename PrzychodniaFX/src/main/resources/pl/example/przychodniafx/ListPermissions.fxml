@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="pl.example.przychodniafx.ListPermissionsController">
+    <top>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <Label text="Przegląd listy uprawnień" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Wybierz uprawnienie:"/>
+                <ComboBox fx:id="permissionComboBox" prefWidth="300.0" onAction="#handlePermissionSelect"/>
+            </HBox>
+        </VBox>
+    </top>
+    
+    <center>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Wyszukaj użytkownika:"/>
+                <TextField fx:id="searchField" promptText="Wpisz imię lub nazwisko lub rolę" HBox.hgrow="ALWAYS"/>
+                <Button text="Szukaj" onAction="#handleSearch"/>
+            </HBox>
+            
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="firstNameColumn" text="Imię"/>
+                    <TableColumn fx:id="lastNameColumn" text="Nazwisko"/>
+                    <TableColumn fx:id="peselColumn" text="PESEL"/>
+                    <TableColumn fx:id="birthDateColumn" text="Data urodzenia"/>
+                    <TableColumn fx:id="genderColumn" text="Płeć"/>
+                    <TableColumn fx:id="roleColumn" text="Rola" prefWidth="100"/>
+
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+    
+    <bottom>
+        <HBox spacing="10.0" alignment="CENTER">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <Button text="Pokaż uprawnienia użytkownika" onAction="#handleShowUserPermissions"/>
+            <Button text="Zamknij" onAction="#handleClose"/>
+        </HBox>
+    </bottom>
+</BorderPane> 
