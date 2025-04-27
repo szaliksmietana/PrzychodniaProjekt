@@ -39,7 +39,7 @@ public class ListPermissionsDAO {
         
         String query = """
             SELECT u.user_id, u.first_name, u.last_name, u.pesel, u.birth_date, u.gender, u.is_forgotten
-            FROM users u
+            FROM Users u
             JOIN user_roles ur ON u.user_id = ur.user_id
             JOIN role_permissions rp ON ur.role_id = rp.role_id
             WHERE rp.permission_id = ? AND (u.is_forgotten IS NULL OR u.is_forgotten = 0)

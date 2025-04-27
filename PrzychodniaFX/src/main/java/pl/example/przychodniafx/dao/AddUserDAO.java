@@ -48,7 +48,7 @@ public class AddUserDAO {
     }
     //czy istnieje pesel
     public boolean isPeselExists(String pesel) throws SQLException {
-        String query = "SELECT COUNT(*) FROM users WHERE pesel = ?";
+        String query = "SELECT COUNT(*) FROM Users WHERE pesel = ?";
         try (Connection conn = DbConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, pesel);

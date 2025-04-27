@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
     user_role_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     role_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
     FOREIGN KEY (role_id) REFERENCES roles(role_id),
     UNIQUE KEY unique_user_role (user_id, role_id)
 );
@@ -46,7 +46,8 @@ INSERT IGNORE INTO roles (role_name) VALUES
 ('Administrator'),
 ('Lekarz'),
 ('Pielęgniarka'),
-('Recepcjonista');
+('Recepcjonista'),
+('Pacjent');
 
 -- Insert default role permissions if they don't exist
 -- Administrator has all permissions

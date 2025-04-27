@@ -12,8 +12,6 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             // Initialize permissions tables in the database
-            DbConnection.initializePermissionsTables();
-            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Main.fxml"));
             Parent root = loader.load();
 
