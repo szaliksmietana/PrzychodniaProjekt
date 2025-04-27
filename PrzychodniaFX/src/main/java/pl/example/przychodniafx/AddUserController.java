@@ -66,7 +66,6 @@ public class AddUserController {
             ObservableList<Roles> rolesList = FXCollections.observableArrayList(roles);
             roleComboBox.setItems(rolesList);
 
-            // Ustawienie sposobu wyświetlania roli
             roleComboBox.setCellFactory(param -> new javafx.scene.control.ListCell<Roles>() {
                 @Override
                 protected void updateItem(Roles role, boolean empty) {
@@ -91,18 +90,16 @@ public class AddUserController {
                 }
             });
 
-            // Obsługa zmiany wybranej roli
+            if (!roles.isEmpty()) {
+                roleComboBox.getSelectionModel().selectFirst();
+                updatePermissionsLabel(roles.get(0).getRole_id());
+            }
+
             roleComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldRole, newRole) -> {
                 if (newRole != null) {
                     updatePermissionsLabel(newRole.getRole_id());
                 }
             });
-
-            // Domyślnie wybierz pierwszą rolę, jeśli lista nie jest pusta
-            if (!roles.isEmpty()) {
-                roleComboBox.getSelectionModel().selectFirst();
-                updatePermissionsLabel(roles.get(0).getRole_id());
-            }
 
         } catch (SQLException e) {
             showErrorMessage("Błąd podczas ładowania ról: " + e.getMessage());
@@ -132,55 +129,51 @@ public class AddUserController {
         Character gender = getSelectedGender();
         Roles selectedRole = roleComboBox.getSelectionModel().getSelectedItem();
 
-
         if (name.isEmpty() || surname.isEmpty() || pesel.isEmpty() || birthDate.isEmpty() || selectedRole == null) {
             showErrorMessage("Wszystkie pola muszą być wypełnione!");
             return;
         }
 
-        // Walidacja długości i formatu PESEL
         if (pesel.length() != 11 || !pesel.matches("\\d+")) {
             showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
             return;
         }
 
-        // Tworzenie obiektu walidatora
         PeselValidator validator = new PeselValidator(pesel);
 
-        // Sprawdzenie poprawności PESEL (checksum, miesiąc, dzień)
         if (!validator.isValid()) {
             showErrorMessage("Błąd: Nieprawidłowy numer PESEL!");
             return;
         }
 
-        // Sprawdzenie zgodności daty z PESEL-em
         if (!validator.matchesBirthDate(birthDate)) {
             showErrorMessage("Błąd: PESEL nie zgadza się z datą urodzenia!");
             return;
         }
+
         if (!validator.matchesGender(gender)) {
             showErrorMessage("Błąd: PESEL nie zgadza się z płcią!");
             return;
         }
 
-
         try {
-            // Ukryty komunikat przy duplikacie peselu
             if (UserDAO.isPeselExists(pesel)) {
-                showErrorMessage("Błąd: Istnieje user z takim samym peselem!");
+                showErrorMessage("Błąd: Istnieje użytkownik z takim samym PESEL!");
                 return;
             }
 
+            // 1. Tworzymy nowego usera
             User user = new User(name, surname, pesel, birthDate);
             user.setGender(gender);
             user.setLogin(pesel);
             user.setPassword(pesel);
             user.setAccess_level(1);
 
-            UserDAO.addUser(user);
+            // 2. Dodajemy usera i pobieramy jego ID
+            int newUserId = UserDAO.addUserAndReturnId(user);
 
-            roleDAO.assignRoleToUser(user.getUser_id(), selectedRole.getRole_id());
-
+            // 3. Przypisujemy rolę do nowego usera
+            roleDAO.assignRoleToUser(newUserId, selectedRole.getRole_id());
 
             showSuccessMessage("Sukces: dodano użytkownika " + name + " " + surname);
             closeWindow();
@@ -190,7 +183,6 @@ public class AddUserController {
             showErrorMessage("Błąd: Nie udało się dodać użytkownika: " + e.getMessage());
         }
     }
-
 
     @FXML
     private void handleCancel() {

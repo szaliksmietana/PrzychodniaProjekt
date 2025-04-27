@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class DbConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/przychodnia";
     private static final String USER = "root"; // Zmień na swoją nazwę użytkownika
-    private static final String PASSWORD = "12345"; // Zmień na swoje hasło
+    private static final String PASSWORD = "qwerty"; // Zmień na swoje hasło
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);

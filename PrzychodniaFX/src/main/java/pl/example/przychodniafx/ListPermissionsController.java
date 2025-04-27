@@ -48,7 +48,10 @@ public class ListPermissionsController {
     private final ListPermissionsDAO listPermissionsDAO = new ListPermissionsDAO();
     private ObservableList<User> usersList = FXCollections.observableArrayList();
     private List<User> allUsers; // Store all users with current permission
-    
+
+    @FXML
+    private TableColumn<User, String> roleColumn;
+
     @FXML
     public void initialize() {
         // Configure the combo box
@@ -69,7 +72,8 @@ public class ListPermissionsController {
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("last_name"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
         birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("birth_date"));
-        
+        roleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getRoleName()));
+
         // Gender column custom display
         genderColumn.setCellValueFactory(cellData -> {
             Character gender = cellData.getValue().getGender();
@@ -115,25 +119,28 @@ public class ListPermissionsController {
             showAlert("Błąd", "Nie udało się załadować użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-    
+
     @FXML
     private void handleSearch() {
         String searchText = searchField.getText().toLowerCase().trim();
-        
+
         if (searchText.isEmpty()) {
             usersList.setAll(allUsers); // Reset to all users
         } else {
             // Filter users by search text
             List<User> filteredUsers = allUsers.stream()
-                    .filter(user -> 
-                            user.getFirst_name().toLowerCase().contains(searchText) || 
-                            user.getLast_name().toLowerCase().contains(searchText))
+                    .filter(user ->
+                            (user.getFirst_name() != null && user.getFirst_name().toLowerCase().contains(searchText)) ||
+                                    (user.getLast_name() != null && user.getLast_name().toLowerCase().contains(searchText)) ||
+                                    (user.getRoleName() != null && user.getRoleName().toLowerCase().contains(searchText)) // <<< Dodano filtr po roli
+                    )
                     .collect(Collectors.toList());
-            
+
             usersList.setAll(filteredUsers);
         }
     }
-    
+
+
     @FXML
     private void handleShowUserPermissions() {
         User selectedUser = usersTable.getSelectionModel().getSelectedItem();
@@ -163,7 +170,9 @@ public class ListPermissionsController {
         Stage stage = (Stage) permissionComboBox.getScene().getWindow();
         stage.close();
     }
-    
+
+
+
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

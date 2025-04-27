@@ -40,6 +40,7 @@
             <TableColumn text="Telefon" fx:id="phone_numberColumn"/>
             <TableColumn text="Płeć" fx:id="genderColumn"/>
             <TableColumn text="Zapomnij" fx:id="isForgottenColumn" />
+            <TableColumn text="Rola" fx:id="roleColumn" prefWidth="150"/>
         </columns>
     </TableView>
 

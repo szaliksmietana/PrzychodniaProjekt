@@ -33,7 +33,7 @@
             </padding>
             <HBox spacing="10.0" alignment="CENTER_LEFT">
                 <Label text="Wyszukaj użytkownika:"/>
-                <TextField fx:id="searchField" promptText="Wpisz imię lub nazwisko" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="searchField" promptText="Wpisz imię lub nazwisko lub rolę" HBox.hgrow="ALWAYS"/>
                 <Button text="Szukaj" onAction="#handleSearch"/>
             </HBox>
             
@@ -44,6 +44,8 @@
                     <TableColumn fx:id="peselColumn" text="PESEL"/>
                     <TableColumn fx:id="birthDateColumn" text="Data urodzenia"/>
                     <TableColumn fx:id="genderColumn" text="Płeć"/>
+                    <TableColumn fx:id="roleColumn" text="Rola" prefWidth="100"/>
+
                 </columns>
             </TableView>
         </VBox>
