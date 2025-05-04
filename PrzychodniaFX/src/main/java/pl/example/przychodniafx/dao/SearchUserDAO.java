@@ -1,14 +1,24 @@
 package pl.example.przychodniafx.dao;
 
 import pl.example.przychodniafx.model.User;
-import pl.example.przychodniafx.DbConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchUserDAO {
+/**
+ * DAO odpowiedzialne za wyszukiwanie użytkowników.
+ */
+public class SearchUserDAO extends BaseDAO {
 
+    /**
+     * Wyszukuje użytkowników po tekście, analizując spacje jako separator imienia i nazwiska.
+     * 
+     * @param searchText tekst wyszukiwania
+     * @param showForgotten czy pokazywać "zapomnianych" użytkowników
+     * @return lista znalezionych użytkowników
+     * @throws SQLException w przypadku błędu bazy danych
+     */
     public List<User> searchUsersByCombinedName(String searchText, boolean showForgotten) throws SQLException {
         if (searchText == null || searchText.trim().isEmpty()) {
             return getAllUsers(showForgotten);
@@ -33,11 +43,20 @@ public class SearchUserDAO {
         }
     }
 
+    /**
+     * Wyszukuje użytkowników po imieniu i nazwisku.
+     * 
+     * @param firstName imię (może być puste)
+     * @param lastName nazwisko (może być puste)
+     * @param showForgotten czy pokazywać "zapomnianych" użytkowników
+     * @return lista znalezionych użytkowników
+     * @throws SQLException w przypadku błędu bazy danych
+     */
     public List<User> searchUsersByName(String firstName, String lastName, boolean showForgotten) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder(
                 "SELECT u.*, r.role_name " +
-                        "FROM Users u " +
-                        "LEFT JOIN user_roles ur ON u.user_id = ur.user_id " +
+                        "FROM users u " +
+                        "LEFT JOIN userroles ur ON u.user_id = ur.user_id " +
                         "LEFT JOIN roles r ON ur.role_id = r.role_id " +
                         "WHERE 1=1"
         );
@@ -64,7 +83,7 @@ public class SearchUserDAO {
         String sql = sqlBuilder.toString();
         List<User> users = new ArrayList<>();
 
-        try (Connection conn = DbConnection.connect();
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             for (int i = 0; i < params.size(); i++) {
@@ -81,11 +100,22 @@ public class SearchUserDAO {
         return users;
     }
 
+    /**
+     * Pobiera użytkownika po ID.
+     * 
+     * @param userId ID użytkownika
+     * @param showForgotten czy pokazywać "zapomnianych" użytkowników
+     * @return użytkownik lub null jeśli nie znaleziono
+     * @throws SQLException w przypadku błędu bazy danych
+     * @throws IllegalArgumentException jeśli userId jest nieprawidłowy
+     */
     public User getUserById(int userId, boolean showForgotten) throws SQLException {
+        validateId(userId, "User");
+        
         StringBuilder sqlBuilder = new StringBuilder(
                 "SELECT u.*, r.role_name " +
-                        "FROM Users u " +
-                        "LEFT JOIN user_roles ur ON u.user_id = ur.user_id " +
+                        "FROM users u " +
+                        "LEFT JOIN userroles ur ON u.user_id = ur.user_id " +
                         "LEFT JOIN roles r ON ur.role_id = r.role_id " +
                         "WHERE u.user_id = ?"
         );
@@ -98,7 +128,7 @@ public class SearchUserDAO {
 
         String sql = sqlBuilder.toString();
 
-        try (Connection conn = DbConnection.connect();
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -113,11 +143,18 @@ public class SearchUserDAO {
         return null;
     }
 
+    /**
+     * Pobiera wszystkich użytkowników.
+     * 
+     * @param showForgotten czy pokazywać "zapomnianych" użytkowników
+     * @return lista użytkowników
+     * @throws SQLException w przypadku błędu bazy danych
+     */
     public List<User> getAllUsers(boolean showForgotten) throws SQLException {
         String sql =
                 "SELECT u.*, r.role_name " +
-                        "FROM Users u " +
-                        "LEFT JOIN user_roles ur ON u.user_id = ur.user_id " +
+                        "FROM users u " +
+                        "LEFT JOIN userroles ur ON u.user_id = ur.user_id " +
                         "LEFT JOIN roles r ON ur.role_id = r.role_id " +
                         (showForgotten
                                 ? "WHERE u.is_forgotten = TRUE"
@@ -126,7 +163,7 @@ public class SearchUserDAO {
 
         List<User> users = new ArrayList<>();
 
-        try (Connection conn = DbConnection.connect();
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -138,7 +175,7 @@ public class SearchUserDAO {
         return users;
     }
 
-    private User extractUserFromResultSet(ResultSet rs) throws SQLException {
+    protected User extractUserFromResultSet(ResultSet rs) throws SQLException {
         User user = new User(
                 rs.getString("first_name"),
                 rs.getString("last_name"),

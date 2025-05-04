@@ -1,7 +1,6 @@
 package pl.example.przychodniafx.dao;
 
 import pl.example.przychodniafx.model.User;
-import pl.example.przychodniafx.DbConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,30 +9,39 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForgetUserDAO {
+/**
+ * DAO odpowiedzialne za operacje na "zapomnianych" użytkownikach.
+ */
+public class ForgetUserDAO extends BaseDAO {
     
     /**
-     * Mark a user as forgotten which will trigger the database trigger to anonymize user data
-     * and insert into forgottenUsers table
+     * Oznacza użytkownika jako "zapomnianego", co spowoduje uruchomienie wyzwalacza
+     * do anonimizacji danych użytkownika i dodania go do tabeli forgotten_users.
+     * 
+     * @param user użytkownik do "zapomnienia"
+     * @throws SQLException w przypadku błędu bazy danych
+     * @throws IllegalArgumentException jeśli użytkownik jest nieprawidłowy
      */
     public void forgetUser(User user) throws SQLException {
-        String sql = "UPDATE Users SET is_forgotten = true WHERE user_id = ?";
-        
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, user.getUser_id());
-            pstmt.executeUpdate();
+        if (user == null || user.getUser_id() == null) {
+            throw new IllegalArgumentException("User and user ID cannot be null");
         }
+        forgetUserById(user.getUser_id());
     }
     
     /**
-     * Mark a user as forgotten by ID which will trigger the database trigger
+     * Oznacza użytkownika jako "zapomnianego" na podstawie ID.
+     * 
+     * @param userId ID użytkownika do "zapomnienia"
+     * @throws SQLException w przypadku błędu bazy danych
+     * @throws IllegalArgumentException jeśli userId jest nieprawidłowy
      */
     public void forgetUserById(int userId) throws SQLException {
-        String sql = "UPDATE Users SET is_forgotten = true WHERE user_id = ?";
+        validateId(userId, "User");
         
-        try (Connection conn = DbConnection.connect();
+        String sql = "UPDATE users SET is_forgotten = true WHERE user_id = ?";
+        
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, userId);
@@ -42,29 +50,39 @@ public class ForgetUserDAO {
     }
     
     /**
-     * Check if a user is in the forgotten users table
+     * Sprawdza, czy użytkownik jest w tabeli "zapomnianych" użytkowników.
+     * 
+     * @param userId ID użytkownika do sprawdzenia
+     * @return true jeśli użytkownik jest "zapomniany", false w przeciwnym przypadku
+     * @throws SQLException w przypadku błędu bazy danych
+     * @throws IllegalArgumentException jeśli userId jest nieprawidłowy
      */
     public boolean isUserForgotten(int userId) throws SQLException {
-        String sql = "SELECT * FROM forgottenUsers WHERE user_id = ?";
+        validateId(userId, "User");
         
-        try (Connection conn = DbConnection.connect();
+        String sql = "SELECT * FROM forgottenusers WHERE user_id = ?";
+        
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next(); // Returns true if user is in forgottenUsers table
+                return rs.next();
             }
         }
     }
     
     /**
-     * Get list of all forgotten user IDs
+     * Pobiera listę ID wszystkich "zapomnianych" użytkowników.
+     * 
+     * @return lista ID "zapomnianych" użytkowników
+     * @throws SQLException w przypadku błędu bazy danych
      */
     public List<Integer> getAllForgottenUserIds() throws SQLException {
-        String sql = "SELECT user_id FROM forgottenUsers";
+        String sql = "SELECT user_id FROM forgottenusers";
         List<Integer> forgottenUserIds = new ArrayList<>();
         
-        try (Connection conn = DbConnection.connect();
+        try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             
