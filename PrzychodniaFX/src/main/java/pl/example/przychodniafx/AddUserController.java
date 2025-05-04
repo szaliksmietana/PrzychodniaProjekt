@@ -3,21 +3,22 @@ package pl.example.przychodniafx;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Label;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.scene.layout.VBox;
 
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.dao.RoleDAO;
 import pl.example.przychodniafx.model.Roles;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.model.UserPermission;
+import pl.example.przychodniafx.model.Permissions;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AddUserController {
@@ -51,8 +52,20 @@ public class AddUserController {
     @FXML
     private Label permissionsLabel;
 
+    @FXML
+    private CheckBox customPermissionsCheckBox;
+
+    @FXML
+    private VBox permissionsContainer;
+
+    @FXML
+    private VBox permissionsCheckboxContainer;
+
     private final AddUserDAO UserDAO = new AddUserDAO();
     private final RoleDAO roleDAO = new RoleDAO();
+
+    private final Map<Integer, CheckBox> permissionCheckboxes = new HashMap<>();
+
 
     @FXML
     public void initialize() {
@@ -92,7 +105,7 @@ public class AddUserController {
 
             if (!roles.isEmpty()) {
                 roleComboBox.getSelectionModel().selectFirst();
-                updatePermissionsLabel(roles.get(0).getRole_id());
+                updatePermissionsLabel(roles.getFirst().getRole_id());
             }
 
             roleComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldRole, newRole) -> {
@@ -101,11 +114,73 @@ public class AddUserController {
                 }
             });
 
+            // Dodawanie listenera do checkboxa dodatkowych uprawnień
+            customPermissionsCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                permissionsContainer.setVisible(newVal);
+                permissionsContainer.setManaged(newVal);
+
+                if (newVal && permissionCheckboxes.isEmpty()) {
+                    loadAllPermissions();
+                }
+
+                // Zaznacz uprawnienia dla obecnie wybranej roli
+                Roles selectedRole = roleComboBox.getSelectionModel().getSelectedItem();
+                if (selectedRole != null) {
+                    updatePermissionCheckboxes(selectedRole.getRole_id());
+                }
+            });
+
         } catch (SQLException e) {
             showErrorMessage("Błąd podczas ładowania ról: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    private void loadAllPermissions() {
+        try {
+            // Pobierz wszystkie dostępne uprawnienia
+            List<Permissions> allPermissions = roleDAO.getAllPermissions();
+
+            // Wyczyść kontener przed dodaniem nowych checkboxów
+            permissionsCheckboxContainer.getChildren().clear();
+            permissionCheckboxes.clear();
+
+            // Utwórz checkbox dla każdego uprawnienia
+            for (Permissions permission : allPermissions) {
+                CheckBox checkBox = new CheckBox(permission.getPermission_name());
+                permissionCheckboxes.put(permission.getPermission_id(), checkBox);
+                permissionsCheckboxContainer.getChildren().add(checkBox);
+            }
+        } catch (SQLException e) {
+            showErrorMessage("Błąd podczas ładowania uprawnień: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Zaznacza checkboxy odpowiadające uprawnieniom przypisanym do danej roli
+    private void updatePermissionCheckboxes(int roleId) {
+        try {
+            // Najpierw odznacz wszystkie
+            for (CheckBox checkBox : permissionCheckboxes.values()) {
+                checkBox.setSelected(false);
+            }
+
+            // Pobierz uprawnienia dla wybranej roli
+            List<UserPermission> rolePermissions = roleDAO.getPermissionsForRole(roleId);
+
+            // Zaznacz odpowiednie checkboxy
+            for (UserPermission permission : rolePermissions) {
+                CheckBox checkBox = permissionCheckboxes.get(permission.getPermissionId());
+                if (checkBox != null) {
+                    checkBox.setSelected(true);
+                }
+            }
+        } catch (SQLException e) {
+            showErrorMessage("Błąd podczas aktualizacji uprawnień: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     private void updatePermissionsLabel(int roleId) {
         try {
@@ -121,7 +196,7 @@ public class AddUserController {
     }
 
     @FXML
-    private void handleSave() {
+    private void handleSave() throws SQLException {
         String name = first_nameField.getText();
         String surname = last_nameField.getText();
         String pesel = peselField.getText();
@@ -175,13 +250,85 @@ public class AddUserController {
             // 3. Przypisujemy rolę do nowego usera
             roleDAO.assignRoleToUser(newUserId, selectedRole.getRole_id());
 
-            showSuccessMessage("Sukces: dodano użytkownika " + name + " " + surname);
-            closeWindow();
+            // 4. Jeśli włączone są dodatkowe uprawnienia, dodajemy tylko te, które nie są już
+            // przypisane przez rolę (czyli dodatkowe)
+            if (customPermissionsCheckBox.isSelected()) {
+                try {
+                    // Pobierz uprawnienia dla wybranej roli
+                    List<UserPermission> rolePermissions = roleDAO.getPermissionsForRole(selectedRole.getRole_id());
+                    List<Integer> rolePermissionIds = rolePermissions.stream()
+                            .map(UserPermission::getPermissionId)
+                            .collect(Collectors.toList());
+
+                    // Pobierz wszystkie zaznaczone uprawnienia
+                    List<Integer> allSelectedPermissions = getSelectedPermissions();
+
+                    // Odfiltruj te, które już są w roli
+                    List<Integer> additionalPermissions = allSelectedPermissions.stream()
+                            .filter(id -> !rolePermissionIds.contains(id))
+                            .collect(Collectors.toList());
+
+                    // Przypisz dodatkowe uprawnienia
+                    if (!additionalPermissions.isEmpty()) {
+                        roleDAO.assignDirectPermissionsToUser(newUserId, additionalPermissions);
+                    }
+
+                } catch (SQLException ex) {
+                    // W przypadku błędu używamy starego podejścia - wszystkie zaznaczone
+                    List<Integer> selectedPermissions = getSelectedPermissions();
+                    roleDAO.assignDirectPermissionsToUser(newUserId, selectedPermissions);
+                }
+
+                showSuccessMessage("Sukces: dodano użytkownika " + name + " " + surname);
+                closeWindow();
+
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
             showErrorMessage("Błąd: Nie udało się dodać użytkownika: " + e.getMessage());
         }
+    }
+
+   /* private void assignPermissionsToUser(int userId, Roles selectedRole) {
+        try {
+            if (customPermissionsCheckBox.isSelected()) {
+                // Pobierz uprawnienia dla wybranej roli
+                List<UserPermission> rolePermissions = roleDAO.getPermissionsForRole(selectedRole.getRole_id());
+                List<Integer> rolePermissionIds = rolePermissions.stream()
+                        .map(UserPermission::getPermissionId)
+                        .collect(Collectors.toList());
+
+                // Pobierz wszystkie zaznaczone uprawnienia
+                List<Integer> allSelectedPermissions = getSelectedPermissions();
+
+                // Odfiltruj te, które już są w roli
+                List<Integer> additionalPermissions = allSelectedPermissions.stream()
+                        .filter(id -> !rolePermissionIds.contains(id))
+                        .collect(Collectors.toList());
+
+                // Przypisz dodatkowe uprawnienia
+                if (!additionalPermissions.isEmpty()) {
+                    roleDAO.assignDirectPermissionsToUser(userId, additionalPermissions);
+                }
+            }
+        } catch (SQLException e) {
+            // W przypadku błędu używamy starego podejścia - wszystkie zaznaczone
+            List<Integer> selectedPermissions = getSelectedPermissions();
+            roleDAO.assignDirectPermissionsToUser(userId, selectedPermissions);
+        }
+    }
+*/
+    private List<Integer> getSelectedPermissions() {
+        List<Integer> selectedPermissions = new ArrayList<>();
+
+        for (Map.Entry<Integer, CheckBox> entry : permissionCheckboxes.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                selectedPermissions.add(entry.getKey());
+            }
+        }
+
+        return selectedPermissions;
     }
 
     @FXML

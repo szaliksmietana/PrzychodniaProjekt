@@ -9,34 +9,6 @@ import java.util.List;
 
 public class AddUserDAO {
 
-    public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender, login, password, access_level) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, user.getFirst_name());
-            pstmt.setString(2, user.getLast_name());
-            pstmt.setString(3, user.getPesel());
-            pstmt.setString(4, user.getBirth_date());
-            pstmt.setString(5, user.getGender().toString());
-            pstmt.setString(6, user.getLogin() != null ? user.getLogin() : user.getPesel());
-            pstmt.setString(7, user.getPassword() != null ? user.getPassword() : user.getPesel());
-            pstmt.setInt(8, user.getAccess_level() != null ? user.getAccess_level() : 1);
-
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        user.setUser_id(rs.getInt(1));
-                    }
-                }
-            }
-        }
-    }
-
     public boolean isPeselExists(String pesel) throws SQLException {
         String query = "SELECT COUNT(*) FROM Users WHERE pesel = ?";
         try (Connection conn = DbConnection.connect();
@@ -47,27 +19,6 @@ public class AddUserDAO {
         }
     }
 
-    public User getUserByPesel(String pesel) throws SQLException {
-        String sql = "SELECT u.*, r.role_name " +
-                "FROM Users u " +
-                "LEFT JOIN user_roles ur ON u.user_id = ur.user_id " +
-                "LEFT JOIN roles r ON ur.role_id = r.role_id " +
-                "WHERE u.pesel = ?";
-
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, pesel);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return extractUserFromResultSet(rs);
-                }
-            }
-        }
-
-        return null;
-    }
 
     public List<User> getAllUsers() throws SQLException {
         String sql = "SELECT u.*, r.role_name " +
@@ -112,18 +63,6 @@ public class AddUserDAO {
         return user;
     }
 
-    public void updateUserForgottenStatus(User user) throws SQLException {
-        String sql = "UPDATE Users SET is_forgotten = ? WHERE user_id = ?";
-
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setBoolean(1, user.getIs_forgotten());
-            pstmt.setInt(2, user.getUser_id());
-
-            pstmt.executeUpdate();
-        }
-    }
     public int addUserAndReturnId(User user) throws SQLException {
         String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender, login, password, access_level) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";

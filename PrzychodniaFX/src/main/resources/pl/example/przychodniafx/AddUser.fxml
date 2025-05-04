@@ -5,9 +5,11 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
 
 
 <VBox spacing="10.0" alignment="TOP_LEFT" xmlns="http://javafx.com/javafx/8"
@@ -53,6 +55,22 @@
 
     <Label text="Uprawnienia przypisane do roli:" style="-fx-font-style: italic;"/>
     <Label fx:id="permissionsLabel" wrapText="true" style="-fx-font-size: 12px;"/>
+
+
+    <HBox spacing="10.0" alignment="CENTER_LEFT">
+        <CheckBox fx:id="customPermissionsCheckBox" text="Dodaj dodatkowe uprawnienia"/>
+    </HBox>
+
+    <VBox fx:id="permissionsContainer" visible="false" managed="false" spacing="5.0">
+        <Label text="Wybierz uprawnienia użytkownika:" style="-fx-font-weight: bold;"/>
+        <Label text="(Uprawnienia z wybranej roli są już zaznaczone)" style="-fx-font-style: italic; -fx-font-size: 12px;"/>
+        <ScrollPane prefHeight="120.0" fitToWidth="true">
+            <VBox fx:id="permissionsCheckboxContainer" spacing="5.0">
+                <!-- Checkboxy zostaną dodane dynamicznie -->
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
     <!-- Label do komunikatów -->
     <Label fx:id="resultLabel" wrapText="true" style="-fx-font-size: 12px;"/>
 
