@@ -1,5 +1,6 @@
 package pl.example.przychodniafx.dao;
 
+import pl.example.przychodniafx.DbConnection;
 import pl.example.przychodniafx.model.Permissions;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.model.UserPermission;
@@ -11,22 +12,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO odpowiedzialne za operacje na uprawnieniach.
- */
-public class ListPermissionsDAO extends BaseDAO {
+public class ListPermissionsDAO {
 
-    /**
-     * Pobiera wszystkie uprawnienia z bazy danych.
-     * 
-     * @return lista wszystkich uprawnień
-     * @throws SQLException w przypadku błędu bazy danych
-     */
     public List<Permissions> getAllPermissions() throws SQLException {
         List<Permissions> permissions = new ArrayList<>();
         String query = "SELECT permission_id, permission_name FROM permissions";
 
-        try (Connection connection = getConnection();
+        try (Connection connection = DbConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -40,37 +32,40 @@ public class ListPermissionsDAO extends BaseDAO {
         return permissions;
     }
 
-    /**
-     * Pobiera użytkowników posiadających określone uprawnienie.
-     * 
-     * @param permissionId ID uprawnienia
-     * @return lista użytkowników z danym uprawnieniem
-     * @throws SQLException w przypadku błędu bazy danych
-     * @throws IllegalArgumentException jeśli permissionId jest nieprawidłowy
-     */
     public List<User> getUsersByPermission(int permissionId) throws SQLException {
-        validateId(permissionId, "Permission");
-        
         List<User> users = new ArrayList<>();
 
         String query = """
             SELECT u.user_id, u.first_name, u.last_name, u.pesel, u.birth_date, u.gender, u.is_forgotten, r.role_name
-            FROM users u
-            JOIN userroles ur ON u.user_id = ur.user_id
+            FROM Users u
+            JOIN user_roles ur ON u.user_id = ur.user_id
             JOIN roles r ON ur.role_id = r.role_id
-            JOIN rolepermissions rp ON r.role_id = rp.role_id
+            JOIN role_permissions rp ON r.role_id = rp.role_id
             WHERE rp.permission_id = ? AND (u.is_forgotten IS NULL OR u.is_forgotten = 0)
             ORDER BY u.last_name, u.first_name
         """;
 
-        try (Connection connection = getConnection();
+        try (Connection connection = DbConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, permissionId);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    users.add(extractUserFromResultSet(resultSet));
+                    User user = new User();
+                    user.setUser_id(resultSet.getInt("user_id"));
+                    user.setFirst_name(resultSet.getString("first_name"));
+                    user.setLast_name(resultSet.getString("last_name"));
+                    user.setPesel(resultSet.getString("pesel"));
+                    user.setBirth_date(resultSet.getString("birth_date"));
+                    user.setGender(resultSet.getString("gender").charAt(0));
+                    Boolean isForgotten = resultSet.getObject("is_forgotten") != null ?
+                            resultSet.getBoolean("is_forgotten") : false;
+                    user.setIs_forgotten(isForgotten);
+
+                    user.setRoleName(resultSet.getString("role_name")); // <--- pobieranie roli
+
+                    users.add(user);
                 }
             }
         }
@@ -78,30 +73,20 @@ public class ListPermissionsDAO extends BaseDAO {
         return users;
     }
 
-    /**
-     * Pobiera uprawnienia dla określonego użytkownika.
-     * 
-     * @param userId ID użytkownika
-     * @return lista uprawnień użytkownika
-     * @throws SQLException w przypadku błędu bazy danych
-     * @throws IllegalArgumentException jeśli userId jest nieprawidłowy
-     */
     public List<UserPermission> getUserPermissions(int userId) throws SQLException {
-        validateId(userId, "User");
-        
         List<UserPermission> userPermissions = new ArrayList<>();
 
         String query = """
             SELECT p.permission_id, p.permission_name, r.role_id, r.role_name
             FROM permissions p
-            JOIN rolepermissions rp ON p.permission_id = rp.permission_id
+            JOIN role_permissions rp ON p.permission_id = rp.permission_id
             JOIN roles r ON rp.role_id = r.role_id
-            JOIN userroles ur ON r.role_id = ur.role_id
+            JOIN user_roles ur ON r.role_id = ur.role_id
             WHERE ur.user_id = ?
             ORDER BY p.permission_name
         """;
 
-        try (Connection connection = getConnection();
+        try (Connection connection = DbConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setInt(1, userId);
