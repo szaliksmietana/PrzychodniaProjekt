@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="pl.example.przychodniafx.AuthStartController"
+      alignment="CENTER" spacing="20.0"
+      prefWidth="400" prefHeight="300">
+
+    <Label text="Witaj w systemie przychodni!" style="-fx-font-size: 18px;" />
+    <Button text="Zaloguj się" onAction="#handleLoginButton" prefWidth="200"/>
+    <Button text="Zarejestruj się" onAction="#handleRegisterButton" prefWidth="200"/>
+
+</VBox>

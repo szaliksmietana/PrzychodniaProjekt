@@ -5,7 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+import java.io.IOException;
+import javafx.scene.control.Button;
 public class MainController {
 
     @FXML
@@ -46,6 +47,27 @@ public class MainController {
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    private void handleLogout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/pl/example/przychodniafx/AuthStart.fxml"));
+            Parent root = loader.load();
+
+            Stage currentStage = (Stage) logoutButton.getScene().getWindow();
+            currentStage.close();
+
+            Stage stage = new Stage();
+            stage.setTitle("Ekran startowy");
+            stage.setScene(new Scene(root, 500, 500));
+            stage.show();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

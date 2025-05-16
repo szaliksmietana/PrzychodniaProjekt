@@ -19,6 +19,27 @@ public class AddUserDAO {
         }
     }
 
+    public User getUserByPesel(String pesel) throws SQLException {
+        String sql = "SELECT u.*, r.role_name " +
+                "FROM Users u " +
+                "LEFT JOIN user_roles ur ON u.user_id = ur.user_id " +
+                "LEFT JOIN roles r ON ur.role_id = r.role_id " +
+                "WHERE u.pesel = ?";
+
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, pesel);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractUserFromResultSet(rs);
+                }
+            }
+        }
+
+        return null;
+    }
 
     public List<User> getAllUsers() throws SQLException {
         String sql = "SELECT u.*, r.role_name " +
@@ -59,7 +80,7 @@ public class AddUserDAO {
             user.setGender(genderStr.charAt(0));
         }
 
-        user.setRoleName(rs.getString("role_name")); // <-- dodano roleName
+        user.setRoleName(rs.getString("role_name"));
         return user;
     }
 
@@ -84,12 +105,25 @@ public class AddUserDAO {
             if (affectedRows > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
-                        return rs.getInt(1); // <- Zwracamy user_id
+                        return rs.getInt(1);
                     }
                 }
             }
         }
+
         throw new SQLException("Nie udało się dodać użytkownika i pobrać ID");
     }
 
+    public void updateUserPassword(int userId, String newPassword) throws SQLException {
+        String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
+
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newPassword);
+            pstmt.setInt(2, userId);
+
+            pstmt.executeUpdate();
+        }
+    }
 }

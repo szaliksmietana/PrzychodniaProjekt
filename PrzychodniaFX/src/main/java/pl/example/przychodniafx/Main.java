@@ -12,7 +12,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             // Initialize permissions tables in the database
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Main.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("AuthStart.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root, 800, 600);

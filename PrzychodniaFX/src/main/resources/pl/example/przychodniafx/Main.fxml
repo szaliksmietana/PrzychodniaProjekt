@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TextField?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx/8"
+            fx:controller="pl.example.przychodniafx.MainController"
+            prefWidth="800" prefHeight="600">
 
-<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="pl.example.przychodniafx.MainController">
+    <VBox spacing="20" alignment="CENTER"
+          AnchorPane.topAnchor="20.0"
+          AnchorPane.leftAnchor="20.0"
+          AnchorPane.rightAnchor="20.0">
 
-    <Label text="Panel Główny"/>
+        <Label text="Panel główny" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
-    <Button text="Dodaj usera" onAction="#handleAddUser"/>
-    <Button text="Zarządzanie użytkownikami" onAction="#handleManageUsers"/>
-    <Button text="Przegląd listy uprawnień" onAction="#handleListPermissions"/>
-    
-</VBox>
+        <Button text="Dodaj użytkownika" onAction="#handleAddUser" prefWidth="200"/>
+        <Button text="Zarządzanie użytkownikami" onAction="#handleManageUsers" prefWidth="200"/>
+        <Button text="Przegląd listy uprawnień" onAction="#handleListPermissions" prefWidth="200"/>
+
+        <Separator/>
+
+
+        <Button fx:id="logoutButton" text="Wyloguj się" onAction="#handleLogout" prefWidth="200"/>
+    </VBox>
+</AnchorPane>
