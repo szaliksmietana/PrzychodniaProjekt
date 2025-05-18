@@ -2,6 +2,9 @@ package pl.example.przychodniafx;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -9,6 +12,7 @@ import pl.example.przychodniafx.dao.ListPermissionsDAO;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.model.UserPermission;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -53,6 +57,28 @@ public class UserPermissionsViewController {
             }
         } catch (SQLException e) {
             showAlert("Błąd", "Nie udało się załadować uprawnień użytkownika: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    private void handleManagePermissions() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/pl/example/przychodniafx/UserPermissionsManager.fxml"));
+            Parent root = loader.load();
+
+            UserPermissionsManager controller = loader.getController();
+            controller.initData(currentUser);
+
+            Stage stage = new Stage();
+            stage.setTitle("Zarządzanie uprawnieniami użytkownika");
+            stage.setScene(new Scene(root, 800, 500));
+            stage.showAndWait();
+
+            // Po zamknięciu okna zarządzania, odśwież listę uprawnień
+            loadUserPermissions();
+
+        } catch (IOException e) {
+            showAlert("Błąd", "Nie udało się otworzyć okna zarządzania uprawnieniami: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
     

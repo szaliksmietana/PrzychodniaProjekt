@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
+
 public class AddUserController {
 
     @FXML
@@ -63,6 +65,7 @@ public class AddUserController {
 
     private final AddUserDAO UserDAO = new AddUserDAO();
     private final RoleDAO roleDAO = new RoleDAO();
+    private final Roles roles = new Roles();
 
     private final Map<Integer, CheckBox> permissionCheckboxes = new HashMap<>();
 
@@ -75,7 +78,10 @@ public class AddUserController {
         MRadio.setSelected(true);
 
         try {
-            List<Roles> roles = roleDAO.getAllRoles();
+            List<Roles> roles = roleDAO.getAllRoles()
+                    .stream()
+                    .filter(role -> !role.getRole_name().startsWith("Custom_"))
+                    .collect(Collectors.toList());
             ObservableList<Roles> rolesList = FXCollections.observableArrayList(roles);
             roleComboBox.setItems(rolesList);
 
@@ -226,14 +232,14 @@ public class AddUserController {
                     List<Integer> additionalPermissions = allSelectedPermissions.stream()
                             .filter(id -> !rolePermissionIds.contains(id))
                             .collect(Collectors.toList());
-
+/*
                     if (!additionalPermissions.isEmpty()) {
                         roleDAO.assignDirectPermissionsToUser(newUserId, additionalPermissions);
                     }
-
+*/
                 } catch (SQLException ex) {
-                    List<Integer> selectedPermissions = getSelectedPermissions();
-                    roleDAO.assignDirectPermissionsToUser(newUserId, selectedPermissions);
+                   // List<Integer> selectedPermissions = getSelectedPermissions();
+                 //   roleDAO.assignDirectPermissionsToUser(newUserId, selectedPermissions);
                 }
 
                 showSuccessMessage("Sukces: dodano użytkownika " + name + " " + surname);

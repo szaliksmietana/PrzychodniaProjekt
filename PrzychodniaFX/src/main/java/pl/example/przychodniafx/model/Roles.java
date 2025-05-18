@@ -10,6 +10,7 @@ public class Roles {
         this.role_name = role_name;
     }
 
+    public Roles(){}
     @Override
     public String toString() {
         return role_name;

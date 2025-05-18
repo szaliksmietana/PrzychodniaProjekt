@@ -38,6 +38,7 @@
             <padding>
                 <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
             </padding>
+            <Button text="Zarządzaj uprawnieniami" onAction="#handleManagePermissions"/>
             <Button text="Zamknij" onAction="#handleClose"/>
         </HBox>
     </bottom>
