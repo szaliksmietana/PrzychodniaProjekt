@@ -84,7 +84,7 @@ public class RegisterController {
             newUser.setAccess_level(1);
 
             int userId = addUserDAO.addUserAndReturnId(newUser);
-            roleDAO.assignRoleToUser(userId, 5); // 5 = Pacjent
+            roleDAO.assignRoleToUser(userId, 21); // 5 = Pacjent
 
             statusLabel.setStyle("-fx-text-fill: green;");
             statusLabel.setText("Rejestracja zakończona sukcesem!");

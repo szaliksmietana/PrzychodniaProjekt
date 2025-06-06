@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.dao.LoginDAO;
 import pl.example.przychodniafx.model.User;
+import pl.example.przychodniafx.LoginAttemptManager;
 import java.io.IOException;
 
 
@@ -34,15 +35,37 @@ public class LoginController {
             return;
         }
 
+        // Sprawdź czy konto jest zablokowane
+        if (LoginAttemptManager.isLoginBlocked(login)) {
+            long remainingMinutes = LoginAttemptManager.getBlockTimeRemaining(login);
+            errorLabel.setText("Konto zablokowane. Spróbuj ponownie za " + remainingMinutes + " minut.");
+            errorLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
         try {
             User user = loginDAO.authenticate(login, password);
             if (user != null) {
+                // Udane logowanie - resetuj próby
+                LoginAttemptManager.recordSuccessfulLogin(login);
+                errorLabel.setText("Logowanie pomyślne!");
+                errorLabel.setStyle("-fx-text-fill: green;");
                 openMainPanel();
             } else {
-                errorLabel.setText("Nieprawidłowy login lub hasło.");
+                // Nieudane logowanie - zapisz próbę
+                LoginAttemptManager.recordFailedAttempt(login);
+
+                int remainingAttempts = LoginAttemptManager.getRemainingAttempts(login);
+                if (remainingAttempts > 0) {
+                    errorLabel.setText("Nieprawidłowy login lub hasło. Pozostało prób: " + remainingAttempts);
+                } else {
+                    errorLabel.setText("Konto zostało zablokowane na 5 minut po 3 nieudanych próbach.");
+                }
+                errorLabel.setStyle("-fx-text-fill: red;");
             }
         } catch (Exception e) {
             errorLabel.setText("Błąd połączenia z bazą.");
+            errorLabel.setStyle("-fx-text-fill: red;");
             e.printStackTrace();
         }
     }
@@ -55,7 +78,7 @@ public class LoginController {
 
             Stage stage = new Stage();
             stage.setTitle("Reset hasła");
-            stage.setScene(new Scene(root, 400, 300));
+            stage.setScene(new Scene(root, 400, 600));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

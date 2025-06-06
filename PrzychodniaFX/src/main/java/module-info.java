@@ -4,6 +4,8 @@ module pl.example.przychodniafx {
     requires static lombok;
     requires java.sql;
     requires java.base;
+    requires jakarta.mail;
+    requires jakarta.activation;
 
 
     opens pl.example.przychodniafx to javafx.fxml;
