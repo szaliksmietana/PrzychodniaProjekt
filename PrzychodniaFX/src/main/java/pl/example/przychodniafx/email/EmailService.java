@@ -4,13 +4,41 @@ import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import jakarta.activation.*;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class EmailService {
-    private static final String SMTP_HOST = "smtp-mail.outlook.com";
+
+    private static final String SMTP_HOST = "in-v3.mailjet.com";
     private static final String SMTP_PORT = "587";
-    private static final String EMAIL_USERNAME = "pomoc_przychodnia";
-    private static final String EMAIL_PASSWORD = "vissxhhmwovaacks";
+
+    private String emailUsername;
+    private String emailPassword;
+
+    public EmailService() {
+        loadConfig();
+    }
+
+    private void loadConfig() {
+        Properties config = new Properties();
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+            if (input == null) {
+                throw new RuntimeException("Nie znaleziono pliku!");
+            }
+            config.load(input);
+            emailUsername = config.getProperty("MAILJET_API_KEY");
+            emailPassword = config.getProperty("MAILJET_API_SECRET");
+            if (emailUsername == null || emailPassword == null) {
+                throw new RuntimeException("Brak klucza API lub sekretu w config.properties");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Nie udało się wczytać pliku config.properties");
+        }
+    }
+
 
     public boolean sendTemporaryPassword(String recipientEmail, String temporaryPassword) {
         try {
@@ -24,12 +52,13 @@ public class EmailService {
             Session session = Session.getInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PASSWORD);
+                    return new PasswordAuthentication(emailUsername, emailPassword);
                 }
             });
 
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_USERNAME));
+            // Adres FROM musi być zweryfikowany w Mailjet, możesz to zmienić na swój
+            message.setFrom(new InternetAddress("pomoc_przychodnia@outlook.com"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject("Tymczasowe hasło - Przychodnia");
 
@@ -46,6 +75,7 @@ public class EmailService {
             message.setText(emailContent);
 
             Transport.send(message);
+            System.out.println("Email wysłany.");
             return true;
 
         } catch (MessagingException e) {
