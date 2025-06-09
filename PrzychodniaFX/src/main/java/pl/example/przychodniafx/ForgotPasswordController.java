@@ -4,10 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.dao.LoginDAO;
-import pl.example.przychodniafx.model.PasswordUtils;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.email.EmailService;
 import pl.example.przychodniafx.email.TemporaryPasswordManager;
+import pl.example.przychodniafx.model.PasswordUtils;
+
 
 public class ForgotPasswordController {
 
@@ -81,7 +82,7 @@ public class ForgotPasswordController {
             return;
         }
 
-        // Sprawdź czy hasło tymczasowe jest poprawne
+
         if (!TemporaryPasswordManager.validateTemporaryPassword(login, tempPassword)) {
             statusLabel.setText("Niepoprawne hasło tymczasowe lub hasło wygasło.");
             statusLabel.setStyle("-fx-text-fill: red;");
@@ -101,14 +102,14 @@ public class ForgotPasswordController {
                 return;
             }
 
-            userDAO.updateUserPassword(user.getUser_id(), newPassword);
+            userDAO.updateUserPassword(user.getId(), newPassword);
 
             TemporaryPasswordManager.removeTemporaryPassword(login);
 
             statusLabel.setText("Hasło zostało pomyślnie zaktualizowane! Możesz się teraz zalogować nowym hasłem.");
             statusLabel.setStyle("-fx-text-fill: green;");
 
-            // Wyczyść pola po udanej zmianie
+
             tempPasswordField.clear();
             newPasswordField.clear();
 

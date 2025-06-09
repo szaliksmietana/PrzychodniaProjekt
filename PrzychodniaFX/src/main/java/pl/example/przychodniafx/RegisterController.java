@@ -7,10 +7,9 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.dao.RoleDAO;
-import pl.example.przychodniafx.model.PasswordUtils;
 import pl.example.przychodniafx.model.User;
-import pl.example.przychodniafx.PeselValidator;
 import javafx.scene.Parent;
+import pl.example.przychodniafx.model.PasswordUtils;
 
 
 import java.io.IOException;
@@ -81,15 +80,15 @@ public class RegisterController {
             newUser.setGender(gender);
             newUser.setLogin(login);
             newUser.setPassword(password);
-            newUser.setAccess_level(1);
+            newUser.setAccessLevel(1);
 
             int userId = addUserDAO.addUserAndReturnId(newUser);
-            roleDAO.assignRoleToUser(userId, 21); // 5 = Pacjent
+            roleDAO.assignRoleToUser(userId, 5); // 5 = Pacjent
 
             statusLabel.setStyle("-fx-text-fill: green;");
             statusLabel.setText("Rejestracja zakończona sukcesem!");
 
-            // Przejście do ekranu startowego
+
             Stage stage = (Stage) registerButton.getScene().getWindow();
             stage.close();
 
@@ -123,7 +122,7 @@ public class RegisterController {
             Stage stage = (Stage) registerButton.getScene().getWindow();
             stage.close();
 
-            // Załaduj ekran startowy (AuthStart)
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/pl/example/przychodniafx/AuthStart.fxml"));
             Parent root = loader.load();
 

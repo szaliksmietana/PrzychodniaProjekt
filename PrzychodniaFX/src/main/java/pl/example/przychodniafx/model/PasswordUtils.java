@@ -1,5 +1,7 @@
 package pl.example.przychodniafx.model;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class PasswordUtils {
@@ -19,8 +21,6 @@ public class PasswordUtils {
         }
 
         StringBuilder password = new StringBuilder();
-
-
         password.append(randomChar(UPPER));
         password.append(randomChar(LOWER));
         password.append(randomChar(DIGITS));
@@ -61,4 +61,24 @@ public class PasswordUtils {
 
         return hasUpper && hasLower && hasDigit && hasSpecial;
     }
+
+
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashed = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashed) {
+                sb.append(String.format("%02x", b)); // na hex
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Nie można zahaszować hasła", e);
+        }
+    }
+
+    /*
+    public static boolean verifyPassword(String plainPassword, String hashedPassword) {
+        return hashPassword(plainPassword).equals(hashedPassword);
+    }*/
 }

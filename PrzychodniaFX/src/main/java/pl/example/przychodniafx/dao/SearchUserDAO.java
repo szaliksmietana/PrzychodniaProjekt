@@ -146,11 +146,11 @@ public class SearchUserDAO {
                 rs.getString("birth_date")
         );
 
-        user.setUser_id(rs.getInt("user_id"));
+        user.setId(rs.getInt("user_id"));
         user.setLogin(rs.getString("login"));
         user.setPassword(rs.getString("password"));
-        user.setAccess_level(rs.getInt("access_level"));
-        user.setIs_forgotten(rs.getBoolean("is_forgotten"));
+        user.setAccessLevel(rs.getInt("access_level"));
+        user.setIsForgotten(rs.getBoolean("is_forgotten"));
 
         String genderStr = rs.getString("gender");
         if (genderStr != null && !genderStr.isEmpty()) {

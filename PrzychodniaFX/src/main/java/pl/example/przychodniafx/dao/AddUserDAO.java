@@ -6,6 +6,8 @@ import pl.example.przychodniafx.DbConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import pl.example.przychodniafx.model.PasswordUtils;
+
 
 public class AddUserDAO {
 
@@ -69,11 +71,12 @@ public class AddUserDAO {
                 rs.getString("birth_date")
         );
 
-        user.setUser_id(rs.getInt("user_id"));
+        user.setId(rs.getInt("user_id"));
+
         user.setLogin(rs.getString("login"));
         user.setPassword(rs.getString("password"));
-        user.setAccess_level(rs.getInt("access_level"));
-        user.setIs_forgotten(rs.getBoolean("is_forgotten"));
+        user.setAccessLevel(rs.getInt("access_level"));
+        user.setIsForgotten(rs.getBoolean("is_forgotten"));
 
         String genderStr = rs.getString("gender");
         if (genderStr != null && !genderStr.isEmpty()) {
@@ -91,14 +94,14 @@ public class AddUserDAO {
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, user.getFirst_name());
-            pstmt.setString(2, user.getLast_name());
+            pstmt.setString(1, user.getFirstName());
+            pstmt.setString(2, user.getLastName());
             pstmt.setString(3, user.getPesel());
-            pstmt.setString(4, user.getBirth_date());
+            pstmt.setString(4, user.getBirthDate());
             pstmt.setString(5, user.getGender().toString());
             pstmt.setString(6, user.getLogin() != null ? user.getLogin() : user.getPesel());
             pstmt.setString(7, user.getPassword() != null ? user.getPassword() : user.getPesel());
-            pstmt.setInt(8, user.getAccess_level() != null ? user.getAccess_level() : 1);
+            pstmt.setInt(8, user.getAccessLevel() != null ? user.getAccessLevel() : 1);
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -120,7 +123,7 @@ public class AddUserDAO {
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, newPassword);
+            pstmt.setString(1, PasswordUtils.hashPassword(newPassword));
             pstmt.setInt(2, userId);
 
             pstmt.executeUpdate();

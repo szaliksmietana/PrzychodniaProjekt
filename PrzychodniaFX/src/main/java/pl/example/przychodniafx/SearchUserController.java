@@ -65,7 +65,7 @@ public class SearchUserController {
                 if (empty) {
                     setText(null);
                 } else {
-                    setText(user.getFirst_name() + " " + user.getLast_name() + " (PESEL: " + user.getPesel() + ")");
+                    setText(user.getFirstName() + " " + user.getLastName() + " (PESEL: " + user.getPesel() + ")");
                 }
             }
         });
@@ -139,7 +139,7 @@ public class SearchUserController {
         int score = 0;
         
         if (!searchFirstName.isEmpty()) {
-            String firstName = user.getFirst_name().toLowerCase();
+            String firstName = user.getFirstName().toLowerCase();
             searchFirstName = searchFirstName.toLowerCase();
             
             if (firstName.equals(searchFirstName)) {
@@ -152,7 +152,7 @@ public class SearchUserController {
         }
         
         if (!searchLastName.isEmpty()) {
-            String lastName = user.getLast_name().toLowerCase();
+            String lastName = user.getLastName().toLowerCase();
             searchLastName = searchLastName.toLowerCase();
             
             if (lastName.equals(searchLastName)) {
@@ -163,7 +163,7 @@ public class SearchUserController {
                 score += 50;
             }
             
-            // Bonus za krótszą różnicę w długości nazwiska
+
             score -= Math.abs(lastName.length() - searchLastName.length()) * 2;
         }
         
@@ -184,8 +184,8 @@ public class SearchUserController {
     private void showUserDetails(User user) {
         hideAllPanels();
         
-        fullNameLabel.setText("Imię i Nazwisko: " + user.getFirst_name() + " " + user.getLast_name());
-        birth_dateLabel.setText("Data urodzenia: " + user.getBirth_date());
+        fullNameLabel.setText("Imię i Nazwisko: " + user.getFirstName() + " " + user.getLastName());
+        birth_dateLabel.setText("Data urodzenia: " + user.getBirthDate());
         peselLabel.setText("PESEL: " + user.getPesel());
         
         detailsBox.setVisible(true);
@@ -216,13 +216,13 @@ public class SearchUserController {
 
     private void refreshUserData() {
         try {
-            User refreshedUser = searchUserDAO.getUserById(foundUser.getUser_id(), false);
+            User refreshedUser = searchUserDAO.getUserById(foundUser.getId(), false);
             if (refreshedUser != null) {
                 foundUser = refreshedUser;
                 showUserDetails(foundUser);
             }
             if (usersListView.isVisible()) {
-                handleSearch(); // Odśwież całą listę wyszukiwania
+                handleSearch();
             }
         } catch (SQLException e) {
             e.printStackTrace();

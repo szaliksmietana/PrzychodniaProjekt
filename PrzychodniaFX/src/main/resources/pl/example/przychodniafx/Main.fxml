@@ -14,14 +14,14 @@
           AnchorPane.leftAnchor="20.0"
           AnchorPane.rightAnchor="20.0">
 
-        <Label text="Panel główny" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+        <Label fx:id="mainLabel" text="Panel główny" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
-        <Button text="Dodaj użytkownika" onAction="#handleAddUser" prefWidth="200"/>
-        <Button text="Zarządzanie użytkownikami" onAction="#handleManageUsers" prefWidth="200"/>
-        <Button text="Przegląd listy uprawnień" onAction="#handleListPermissions" prefWidth="200"/>
+        <Button fx:id="addUserButton" text="Dodaj użytkownika" onAction="#handleAddUser" prefWidth="200"/>
+        <Button fx:id="manageUsersButton" text="Zarządzanie użytkownikami" onAction="#handleManageUsers" prefWidth="200"/>
+        <Button fx:id="listPermissionsButton" text="Przegląd listy uprawnień" onAction="#handleListPermissions" prefWidth="200"/>
+        <Button text="Moje dane" onAction="#handleShowProfile" prefWidth="200"/>
 
         <Separator/>
-
 
         <Button fx:id="logoutButton" text="Wyloguj się" onAction="#handleLogout" prefWidth="200"/>
     </VBox>

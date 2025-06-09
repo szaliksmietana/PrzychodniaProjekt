@@ -18,51 +18,27 @@ import pl.example.przychodniafx.dao.ForgetUserDAO;
 import pl.example.przychodniafx.dao.SearchUserDAO;
 import javafx.scene.layout.HBox;
 
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class ManageUsersController {
 
-    @FXML
-    private TableView<User> userTable;
+    @FXML private TableView<User> userTable;
+    @FXML private TableColumn<User, String> first_nameColumn;
+    @FXML private TableColumn<User, String> last_nameColumn;
+    @FXML private TableColumn<User, String> peselColumn;
+    @FXML private TableColumn<User, String> birth_dateColumn;
+    @FXML private TableColumn<User, String> genderColumn;
+    @FXML private TableColumn<User, String> roleColumn;
+    @FXML private TableColumn<User, Boolean> isForgottenColumn;
+    @FXML private TableColumn<User, String> loginColumn;
 
-    @FXML
-    private TableColumn<User, String> first_nameColumn;
-
-    @FXML
-    private TableColumn<User, String> last_nameColumn;
-
-    @FXML
-    private TableColumn<User, String> peselColumn;
-
-    @FXML
-    private TableColumn<User, String> birth_dateColumn;
-
-    @FXML
-    private TableColumn<User, String> genderColumn;
-
-    @FXML
-    private TableColumn<User, String> roleColumn;
-
-    @FXML
-    private TableColumn<User, Boolean> isForgottenColumn;
-
-    @FXML
-    private CheckBox showForgottenUsersCheckbox;
-
-    @FXML
-    private Button forgetUserButton;
-
-    @FXML
-    private TextField searchField;
-
-    @FXML
-    private Button searchButton;
-
-    @FXML
-    private HBox searchBox;
+    @FXML private CheckBox showForgottenUsersCheckbox;
+    @FXML private Button forgetUserButton;
+    @FXML private TextField searchField;
+    @FXML private Button searchButton;
+    @FXML private HBox searchBox;
 
     private ObservableList<User> userList = FXCollections.observableArrayList();
     private ObservableList<User> forgottenUserList = FXCollections.observableArrayList();
@@ -76,10 +52,11 @@ public class ManageUsersController {
         userTable.setEditable(true);
         isForgottenColumn.setEditable(true);
 
-        first_nameColumn.setCellValueFactory(new PropertyValueFactory<>("first_name"));
-        last_nameColumn.setCellValueFactory(new PropertyValueFactory<>("last_name"));
+        first_nameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        last_nameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
-        birth_dateColumn.setCellValueFactory(new PropertyValueFactory<>("birth_date"));
+        birth_dateColumn.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
+        loginColumn.setCellValueFactory(new PropertyValueFactory<>("login"));
 
         genderColumn.setCellValueFactory(cellData -> {
             Character gender = cellData.getValue().getGender();
@@ -92,15 +69,14 @@ public class ManageUsersController {
 
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("roleName"));
 
-
         isForgottenColumn.setCellValueFactory(param -> {
             User user = param.getValue();
-            SimpleBooleanProperty property = new SimpleBooleanProperty(user.getIs_forgotten() != null && user.getIs_forgotten());
+            SimpleBooleanProperty property = new SimpleBooleanProperty(user.getIsForgotten() != null && user.getIsForgotten());
             property.addListener((obs, oldVal, newVal) -> {
                 if (newVal && !oldVal) {
-                    user.setIs_forgotten(true);
+                    user.setIsForgotten(true);
                 } else if (!newVal && oldVal) {
-                    user.setIs_forgotten(false);
+                    user.setIsForgotten(false);
                 }
             });
             return property;
@@ -133,18 +109,6 @@ public class ManageUsersController {
         }
     }
 
-    private String mapAccessLevelToRoleName(Integer accessLevel) {
-        if (accessLevel == null) return "-";
-        return switch (accessLevel) {
-            case 1 -> "Administrator";
-            case 2 -> "Lekarz";
-            case 3 -> "Pielęgniarka";
-            case 4 -> "Recepcjonista";
-            case 5 -> "Pacjent";
-            default -> "Nieznana rola";
-        };
-    }
-
     @FXML
     private void toggleForgottenUsers() {
         if (showForgottenUsersCheckbox.isSelected()) {
@@ -174,11 +138,10 @@ public class ManageUsersController {
             } else {
                 foundUsers = allUsers.stream()
                         .filter(user ->
-                                (user.getFirst_name() != null && user.getFirst_name().toLowerCase().contains(searchText)) ||
-                                        (user.getLast_name() != null && user.getLast_name().toLowerCase().contains(searchText)) ||
+                                (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(searchText)) ||
+                                        (user.getLastName() != null && user.getLastName().toLowerCase().contains(searchText)) ||
                                         (user.getRoleName() != null && user.getRoleName().toLowerCase().contains(searchText))
-                        )
-                        .toList();
+                        ).toList();
             }
 
             updateUsersList(foundUsers, isForgottenMode);
@@ -187,10 +150,6 @@ public class ManageUsersController {
             showAlert("Błąd", "Nie udało się wyszukać użytkowników: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-
-
-
-
 
     private void updateUsersList(List<User> users, boolean isForgottenMode) {
         if (isForgottenMode) {
@@ -216,7 +175,7 @@ public class ManageUsersController {
             List<Integer> forgottenIds = forgetUserDAO.getAllForgottenUserIds();
 
             users.stream()
-                    .filter(user -> user.getIs_forgotten() != null && user.getIs_forgotten() || forgottenIds.contains(user.getUser_id()))
+                    .filter(user -> user.getIsForgotten() != null && user.getIsForgotten() || forgottenIds.contains(user.getId()))
                     .forEach(forgottenUserList::add);
 
             userTable.setItems(forgottenUserList);
@@ -231,7 +190,7 @@ public class ManageUsersController {
     @FXML
     private void handleForgetUserButton() {
         List<User> selectedUsers = userList.stream()
-                .filter(user -> user.getIs_forgotten() != null && user.getIs_forgotten())
+                .filter(user -> user.getIsForgotten() != null && user.getIsForgotten())
                 .toList();
 
         if (selectedUsers.isEmpty()) {
@@ -264,7 +223,7 @@ public class ManageUsersController {
             List<User> users = UserDAO.getAllUsers();
             userList.clear();
             users.stream()
-                    .filter(user -> user.getIs_forgotten() == null || !user.getIs_forgotten())
+                    .filter(user -> user.getIsForgotten() == null || !user.getIsForgotten())
                     .forEach(userList::add);
             userTable.setItems(userList);
             isForgottenColumn.setEditable(true);

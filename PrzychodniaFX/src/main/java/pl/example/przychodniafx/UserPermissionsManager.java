@@ -11,40 +11,25 @@ import pl.example.przychodniafx.dao.RoleDAO;
 import pl.example.przychodniafx.model.Permissions;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.model.UserPermission;
+import pl.example.przychodniafx.DbConnection;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserPermissionsManager {
 
-    @FXML
-    private Label userNameLabel;
-
-    @FXML
-    private TableView<UserPermission> assignedPermissionsTable;
-
-    @FXML
-    private TableColumn<UserPermission, String> assignedPermissionNameColumn;
-
-    @FXML
-    private TableColumn<UserPermission, String> sourceColumn;
-
-    @FXML
-    private TableView<Permissions> availablePermissionsTable;
-
-    @FXML
-    private TableColumn<Permissions, String> availablePermissionNameColumn;
-
-    @FXML
-    private Button addPermissionButton;
-
-    @FXML
-    private Button removePermissionButton;
-
-    @FXML
-    private Label statusLabel;
+    @FXML private Label userNameLabel;
+    @FXML private TableView<UserPermission> assignedPermissionsTable;
+    @FXML private TableColumn<UserPermission, String> assignedPermissionNameColumn;
+    @FXML private TableColumn<UserPermission, String> sourceColumn;
+    @FXML private TableView<Permissions> availablePermissionsTable;
+    @FXML private TableColumn<Permissions, String> availablePermissionNameColumn;
+    @FXML private Button addPermissionButton;
+    @FXML private Button removePermissionButton;
+    @FXML private Label statusLabel;
 
     private final ListPermissionsDAO listPermissionsDAO = new ListPermissionsDAO();
     private final RoleDAO roleDAO = new RoleDAO();
@@ -55,22 +40,19 @@ public class UserPermissionsManager {
 
     @FXML
     public void initialize() {
-        // Initialize table columns
         assignedPermissionNameColumn.setCellValueFactory(new PropertyValueFactory<>("permissionName"));
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("roleName"));
         availablePermissionNameColumn.setCellValueFactory(new PropertyValueFactory<>("permission_name"));
 
-        // Set up selection listener for enabling/disabling buttons
         availablePermissionsTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> addPermissionButton.setDisable(newSelection == null));
-
         assignedPermissionsTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> removePermissionButton.setDisable(newSelection == null));
     }
 
     public void initData(User user) {
         this.currentUser = user;
-        userNameLabel.setText(user.getFirst_name() + " " + user.getLast_name());
+        userNameLabel.setText(user.getFirstName() + " " + user.getLastName());
 
         loadUserPermissions();
         loadAvailablePermissions();
@@ -78,7 +60,7 @@ public class UserPermissionsManager {
 
     private void loadUserPermissions() {
         try {
-            List<UserPermission> permissions = listPermissionsDAO.getUserPermissions(currentUser.getUser_id());
+            List<UserPermission> permissions = listPermissionsDAO.getUserPermissions(currentUser.getId());
             assignedPermissions.setAll(permissions);
             assignedPermissionsTable.setItems(assignedPermissions);
 
@@ -92,15 +74,11 @@ public class UserPermissionsManager {
 
     private void loadAvailablePermissions() {
         try {
-            // Get all permissions
             List<Permissions> allPermissions = roleDAO.getAllPermissions();
-
-            // Get currently assigned permission IDs
             List<Integer> assignedPermissionIds = assignedPermissions.stream()
                     .map(UserPermission::getPermissionId)
                     .collect(Collectors.toList());
 
-            // Filter out permissions that are already assigned
             List<Permissions> unassignedPermissions = allPermissions.stream()
                     .filter(permission -> !assignedPermissionIds.contains(permission.getPermission_id()))
                     .collect(Collectors.toList());
@@ -118,22 +96,17 @@ public class UserPermissionsManager {
         if (selectedPermission == null) return;
 
         try {
-            // Create a custom role name for this user's custom permissions
-            String customRoleName = "Rola_" + currentUser.getUser_id();
-            int customRoleId = roleDAO.getOrCreateCustomRole(currentUser.getUser_id(), customRoleName);
+            String customRoleName = "Rola_" + currentUser.getId();
+            int customRoleId = roleDAO.getOrCreateCustomRole(currentUser.getId(), customRoleName);
 
-            // Assign permission to the custom role
             roleDAO.assignPermissionToRole(customRoleId, selectedPermission.getPermission_id());
 
-            // Check if user already has the custom role assigned
-            if (!roleDAO.userHasRole(currentUser.getUser_id(), customRoleId)) {
-                roleDAO.assignRoleToUser(currentUser.getUser_id(), customRoleId);
+            if (!roleDAO.userHasRole(currentUser.getId(), customRoleId)) {
+                roleDAO.assignRoleToUser(currentUser.getId(), customRoleId);
             }
 
-            // Refresh permissions lists
             loadUserPermissions();
             loadAvailablePermissions();
-
             showStatus("Uprawnienie dodane pomyślnie.", true);
         } catch (SQLException e) {
             showAlert("Błąd", "Nie udało się dodać uprawnienia: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -145,7 +118,6 @@ public class UserPermissionsManager {
         UserPermission selectedPermission = assignedPermissionsTable.getSelectionModel().getSelectedItem();
         if (selectedPermission == null) return;
 
-        // Check if this is a direct permission or comes from a role
         String roleName = selectedPermission.getRoleName();
         if (roleName != null) {
             try {
@@ -155,8 +127,6 @@ public class UserPermissionsManager {
                 );
 
                 showStatus("Uprawnienie usunięte pomyślnie.", true);
-
-                // Refresh permissions lists
                 loadUserPermissions();
                 loadAvailablePermissions();
             } catch (SQLException e) {
@@ -187,5 +157,30 @@ public class UserPermissionsManager {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public static Set<String> getPermissionsForUser(Long userId) {
+        Set<String> permissions = new HashSet<>();
+
+        String sql = "SELECT DISTINCT p.permission_name " +
+                "FROM permissions p " +
+                "JOIN role_permissions rp ON p.permission_id = rp.permission_id " +
+                "JOIN user_roles ur ON rp.role_id = ur.role_id " +
+                "WHERE ur.user_id = ?";
+
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                permissions.add(rs.getString("permission_name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return permissions;
     }
 }

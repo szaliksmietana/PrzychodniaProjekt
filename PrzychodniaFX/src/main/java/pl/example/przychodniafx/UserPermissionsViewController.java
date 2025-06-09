@@ -20,38 +20,51 @@ public class UserPermissionsViewController {
 
     @FXML
     private Label userNameLabel;
-    
+
+    @FXML
+    private Label peselLabel;
+
+    @FXML
+    private Label loginLabel;
+
     @FXML
     private TableView<UserPermission> permissionsTable;
-    
+
     @FXML
     private TableColumn<UserPermission, String> permissionNameColumn;
-    
+
     @FXML
     private TableColumn<UserPermission, String> roleNameColumn;
-    
+
     private final ListPermissionsDAO listPermissionsDAO = new ListPermissionsDAO();
     private User currentUser;
-    
+
     @FXML
     public void initialize() {
-        // Initialize table columns
         permissionNameColumn.setCellValueFactory(new PropertyValueFactory<>("permissionName"));
         roleNameColumn.setCellValueFactory(new PropertyValueFactory<>("roleName"));
     }
-    
+
     public void initData(User user) {
         this.currentUser = user;
-        userNameLabel.setText(user.getFirst_name() + " " + user.getLast_name());
-        
+
+        String imie = user.getFirstName() != null ? user.getFirstName() : "";
+        String nazwisko = user.getLastName() != null ? user.getLastName() : "";
+        String pesel = user.getPesel() != null ? user.getPesel() : "-";
+        String login = user.getLogin() != null ? user.getLogin() : "-";
+
+        userNameLabel.setText("Imię i nazwisko: " + imie + " " + nazwisko);
+        peselLabel.setText("PESEL: " + pesel);
+        loginLabel.setText("Login: " + login);
+
         loadUserPermissions();
     }
-    
+
     private void loadUserPermissions() {
         try {
-            List<UserPermission> permissions = listPermissionsDAO.getUserPermissions(currentUser.getUser_id());
+            List<UserPermission> permissions = listPermissionsDAO.getUserPermissions(currentUser.getId());
             permissionsTable.setItems(FXCollections.observableArrayList(permissions));
-            
+
             if (permissions.isEmpty()) {
                 showAlert("Informacja", "Użytkownik nie posiada żadnych uprawnień.", Alert.AlertType.INFORMATION);
             }
@@ -74,20 +87,18 @@ public class UserPermissionsViewController {
             stage.setScene(new Scene(root, 800, 500));
             stage.showAndWait();
 
-            // Po zamknięciu okna zarządzania, odśwież listę uprawnień
-            loadUserPermissions();
-
+            loadUserPermissions(); // odświeżenie po zamknięciu okna
         } catch (IOException e) {
             showAlert("Błąd", "Nie udało się otworzyć okna zarządzania uprawnieniami: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-    
+
     @FXML
     private void handleClose() {
         Stage stage = (Stage) userNameLabel.getScene().getWindow();
         stage.close();
     }
-    
+
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -95,4 +106,4 @@ public class UserPermissionsViewController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-} 
+}

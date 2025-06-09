@@ -2,10 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.geometry.Insets?>
 
-<VBox spacing="10.0" alignment="CENTER" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml" fx:controller="pl.example.przychodniafx.UserDetailsController">
+<VBox spacing="10.0" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pl.example.przychodniafx.MyProfileController">
 
     <Label fx:id="nameLabel" text="Imię i nazwisko:"/>
     <Label fx:id="peselLabel" text="PESEL:"/>
@@ -13,7 +13,5 @@
     <Label fx:id="loginLabel" text="Login:"/>
     <Label fx:id="genderLabel" text="Płeć:"/>
 
-    <Button text="Zmień hasło" onAction="#handleChangePassword"/>
-    <Button text="Edytuj użytkownika" onAction="#handleEditUser"/>
     <Button text="Zamknij" onAction="#handleClose"/>
 </VBox>

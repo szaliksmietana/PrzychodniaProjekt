@@ -9,8 +9,11 @@ import javafx.stage.Stage;
 import pl.example.przychodniafx.dao.LoginDAO;
 import pl.example.przychodniafx.model.User;
 import pl.example.przychodniafx.LoginAttemptManager;
-import java.io.IOException;
+import pl.example.przychodniafx.model.Session;
+import pl.example.przychodniafx.UserPermissionsManager;
 
+import java.io.IOException;
+import java.util.Set;
 
 public class LoginController {
 
@@ -35,7 +38,6 @@ public class LoginController {
             return;
         }
 
-        // Sprawdź czy konto jest zablokowane
         if (LoginAttemptManager.isLoginBlocked(login)) {
             long remainingMinutes = LoginAttemptManager.getBlockTimeRemaining(login);
             errorLabel.setText("Konto zablokowane. Spróbuj ponownie za " + remainingMinutes + " minut.");
@@ -46,15 +48,17 @@ public class LoginController {
         try {
             User user = loginDAO.authenticate(login, password);
             if (user != null) {
-                // Udane logowanie - resetuj próby
                 LoginAttemptManager.recordSuccessfulLogin(login);
+
+                Set<String> permissions = UserPermissionsManager.getPermissionsForUser(user.getId().longValue());
+                Session.setSession(user.getId().longValue(), permissions);
+                Session.setUser(user);
+
                 errorLabel.setText("Logowanie pomyślne!");
                 errorLabel.setStyle("-fx-text-fill: green;");
                 openMainPanel();
             } else {
-                // Nieudane logowanie - zapisz próbę
                 LoginAttemptManager.recordFailedAttempt(login);
-
                 int remainingAttempts = LoginAttemptManager.getRemainingAttempts(login);
                 if (remainingAttempts > 0) {
                     errorLabel.setText("Nieprawidłowy login lub hasło. Pozostało prób: " + remainingAttempts);
@@ -85,7 +89,6 @@ public class LoginController {
         }
     }
 
-
     @FXML
     private void handleBack() {
         try {
@@ -104,12 +107,8 @@ public class LoginController {
 
             Stage stage = new Stage();
             stage.setTitle("Panel Główny");
+            stage.setScene(new Scene(root, 800, 600));
 
-            // Ustawienie rozmiaru
-            Scene scene = new Scene(root, 800, 600);
-            stage.setScene(scene);
-
-            // Zamknięcie obecnego okna logowania
             Stage currentStage = (Stage) loginField.getScene().getWindow();
             currentStage.close();
 
@@ -118,6 +117,4 @@ public class LoginController {
             e.printStackTrace();
         }
     }
-
-
 }
