@@ -30,10 +30,10 @@ public class EditUserController {
 
     public void setUserData(User user) {
         this.userToEdit = user;
-        first_nameField.setText(user.getFirst_name());
-        last_nameField.setText(user.getLast_name());
+        first_nameField.setText(user.getFirstName());
+        last_nameField.setText(user.getLastName());
         peselField.setText(user.getPesel());
-        birth_dateField.setText(user.getBirth_date());
+        birth_dateField.setText(user.getBirthDate());
         //phone_numberField.setText(user.getPhone_number());
     }
 
@@ -56,14 +56,14 @@ public class EditUserController {
                 return;
             }
 
-            userToEdit.setFirst_name(name);
-            userToEdit.setLast_name(surname);
+            userToEdit.setFirstName(name);
+            userToEdit.setLastName(surname);
             //userToEdit.setPesel(pesel);
-            userToEdit.setBirth_date(birthDate);
+            userToEdit.setBirthDate(birthDate);
 
             try {
                 editUserDAO.updateUser(userToEdit);
-                System.out.println("Sukces, Zapisano zmiany dla: " + userToEdit.getFirst_name() + " " + userToEdit.getLast_name());
+                System.out.println("Sukces, Zapisano zmiany dla: " + userToEdit.getFirstName() + " " + userToEdit.getLastName());
                 handleCancel();
             } catch (SQLException e) {
                 e.printStackTrace();

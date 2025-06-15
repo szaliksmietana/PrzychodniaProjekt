@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pl.example.przychodniafx.RegisterController"
+            prefWidth="600" prefHeight="650">
+
+    <VBox alignment="TOP_CENTER" spacing="10.0" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <padding>
+            <Insets top="20" left="20" right="20" bottom="20"/>
+        </padding>
+
+        <Label text="Rejestracja" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+        <VBox alignment="TOP_LEFT" spacing="5.0" maxWidth="400">
+            <Label text="Imię:"/>
+            <TextField fx:id="firstNameField" promptText="Imię"/>
+
+            <Label text="Nazwisko:"/>
+            <TextField fx:id="lastNameField" promptText="Nazwisko"/>
+
+            <Label text="PESEL:"/>
+            <TextField fx:id="peselField" promptText="PESEL"/>
+
+            <Label text="Data urodzenia (YYYY-MM-DD):"/>
+            <TextField fx:id="birthDateField" promptText="Data urodzenia"/>
+
+            <Label text="Płeć:"/>
+            <HBox spacing="10">
+                <RadioButton fx:id="maleRadio" text="Mężczyzna"/>
+                <RadioButton fx:id="femaleRadio" text="Kobieta"/>
+            </HBox>
+
+            <Label text="Login:"/>
+            <TextField fx:id="loginField" promptText="Login (np. email)"/>
+
+            <Label text="Hasło:"/>
+            <PasswordField fx:id="passwordField" promptText="Hasło"/>
+
+            <Label fx:id="passwordRequirementsLabel" textFill="GRAY" wrapText="true"/>
+            <Button text="Wygeneruj bezpieczne hasło" onAction="#handleGeneratePassword"/>
+            <Label fx:id="generatedPasswordLabel" text="" style="-fx-font-style: italic;"/>
+            <Label fx:id="resultLabel" wrapText="true"/>
+        </VBox>
+
+        <HBox alignment="CENTER" spacing="10">
+            <Button fx:id="registerButton" text="Zarejestruj" onAction="#handleRegister"/>
+            <Button text="Anuluj" onAction="#handleCancel"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" text="" style="-fx-text-fill: green;">
+            <VBox.margin>
+                <Insets top="10"/>
+            </VBox.margin>
+        </Label>
+    </VBox>
+
+</AnchorPane>

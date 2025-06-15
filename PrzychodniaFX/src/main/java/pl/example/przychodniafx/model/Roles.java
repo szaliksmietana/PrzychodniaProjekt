@@ -9,4 +9,11 @@ public class Roles {
     public Roles(String role_name){
         this.role_name = role_name;
     }
+
+    public Roles(){}
+    @Override
+    public String toString() {
+        return role_name;
+    }
 }
+

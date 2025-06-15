@@ -36,7 +36,8 @@ public class ListPermissionsDAO {
         List<User> users = new ArrayList<>();
 
         String query = """
-            SELECT u.user_id, u.first_name, u.last_name, u.pesel, u.birth_date, u.gender, u.is_forgotten, r.role_name
+            SELECT u.user_id, u.first_name, u.last_name, u.pesel, u.birth_date, u.gender,
+                   u.is_forgotten, u.login, r.role_name
             FROM Users u
             JOIN user_roles ur ON u.user_id = ur.user_id
             JOIN roles r ON ur.role_id = r.role_id
@@ -53,17 +54,17 @@ public class ListPermissionsDAO {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     User user = new User();
-                    user.setUser_id(resultSet.getInt("user_id"));
-                    user.setFirst_name(resultSet.getString("first_name"));
-                    user.setLast_name(resultSet.getString("last_name"));
+                    user.setId(resultSet.getInt("user_id"));
+                    user.setFirstName(resultSet.getString("first_name"));
+                    user.setLastName(resultSet.getString("last_name"));
                     user.setPesel(resultSet.getString("pesel"));
-                    user.setBirth_date(resultSet.getString("birth_date"));
+                    user.setBirthDate(resultSet.getString("birth_date"));
                     user.setGender(resultSet.getString("gender").charAt(0));
+                    user.setLogin(resultSet.getString("login"));
                     Boolean isForgotten = resultSet.getObject("is_forgotten") != null ?
                             resultSet.getBoolean("is_forgotten") : false;
-                    user.setIs_forgotten(isForgotten);
-
-                    user.setRoleName(resultSet.getString("role_name")); // <--- pobieranie roli
+                    user.setIsForgotten(isForgotten);
+                    user.setRoleName(resultSet.getString("role_name"));
 
                     users.add(user);
                 }

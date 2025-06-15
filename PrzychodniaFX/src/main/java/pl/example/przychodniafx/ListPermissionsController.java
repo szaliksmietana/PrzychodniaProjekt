@@ -47,14 +47,14 @@ public class ListPermissionsController {
     
     private final ListPermissionsDAO listPermissionsDAO = new ListPermissionsDAO();
     private ObservableList<User> usersList = FXCollections.observableArrayList();
-    private List<User> allUsers; // Store all users with current permission
+    private List<User> allUsers;
 
     @FXML
     private TableColumn<User, String> roleColumn;
 
     @FXML
     public void initialize() {
-        // Configure the combo box
+
         permissionComboBox.setConverter(new javafx.util.StringConverter<Permissions>() {
             @Override
             public String toString(Permissions permission) {
@@ -63,18 +63,18 @@ public class ListPermissionsController {
             
             @Override
             public Permissions fromString(String string) {
-                return null; // Not needed for ComboBox
+                return null;
             }
         });
         
-        // Initialize table columns
-        firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("first_name"));
-        lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("last_name"));
+
+        firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
-        birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("birth_date"));
+        birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
         roleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getRoleName()));
 
-        // Gender column custom display
+
         genderColumn.setCellValueFactory(cellData -> {
             Character gender = cellData.getValue().getGender();
             String display = "-";
@@ -84,7 +84,7 @@ public class ListPermissionsController {
             return new SimpleStringProperty(display);
         });
         
-        // Load permissions
+
         loadPermissions();
     }
     
@@ -95,7 +95,7 @@ public class ListPermissionsController {
             
             if (!permissions.isEmpty()) {
                 permissionComboBox.getSelectionModel().selectFirst();
-                handlePermissionSelect(); // Load users for the selected permission
+                handlePermissionSelect();
             }
         } catch (SQLException e) {
             showAlert("Błąd", "Nie udało się załadować uprawnień: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -125,14 +125,14 @@ public class ListPermissionsController {
         String searchText = searchField.getText().toLowerCase().trim();
 
         if (searchText.isEmpty()) {
-            usersList.setAll(allUsers); // Reset to all users
+            usersList.setAll(allUsers);
         } else {
             // Filter users by search text
             List<User> filteredUsers = allUsers.stream()
                     .filter(user ->
-                            (user.getFirst_name() != null && user.getFirst_name().toLowerCase().contains(searchText)) ||
-                                    (user.getLast_name() != null && user.getLast_name().toLowerCase().contains(searchText)) ||
-                                    (user.getRoleName() != null && user.getRoleName().toLowerCase().contains(searchText)) // <<< Dodano filtr po roli
+                            (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(searchText)) ||
+                                    (user.getLastName() != null && user.getLastName().toLowerCase().contains(searchText)) ||
+                                    (user.getRoleName() != null && user.getRoleName().toLowerCase().contains(searchText))
                     )
                     .collect(Collectors.toList());
 

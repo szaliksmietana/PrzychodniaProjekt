@@ -9,18 +9,22 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="pl.example.przychodniafx.UserPermissionsViewController">
+
     <top>
-        <VBox spacing="10.0">
+        <VBox spacing="6.0">
             <padding>
                 <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
             </padding>
-            <Label fx:id="userNameLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+            <Label fx:id="userNameLabel" text="Imię i nazwisko" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="peselLabel" text="PESEL:"/>
+            <Label fx:id="loginLabel" text="Login:"/>
             <Label text="Lista uprawnień użytkownika:" style="-fx-font-weight: bold;"/>
         </VBox>
     </top>
-    
+
     <center>
         <TableView fx:id="permissionsTable" VBox.vgrow="ALWAYS">
             <columns>
@@ -32,13 +36,15 @@
             </padding>
         </TableView>
     </center>
-    
+
     <bottom>
         <HBox spacing="10.0" alignment="CENTER">
             <padding>
                 <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
             </padding>
+            <Button text="Zarządzaj uprawnieniami" onAction="#handleManagePermissions"/>
             <Button text="Zamknij" onAction="#handleClose"/>
         </HBox>
     </bottom>
-</BorderPane> 
+
+</BorderPane>

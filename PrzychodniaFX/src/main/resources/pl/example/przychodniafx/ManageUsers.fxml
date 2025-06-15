@@ -21,7 +21,6 @@
         <CheckBox fx:id="showForgottenUsersCheckbox" text="Pokaż zapomnianych użytkowników" onAction="#toggleForgottenUsers"/>
     </HBox>
 
-    <!-- Panel wyszukiwania zapomnianych użytkowników - dostępny zawsze -->
     <HBox fx:id="searchBox" alignment="CENTER_LEFT" spacing="10.0">
         <padding>
             <Insets left="10.0" right="10.0" top="5.0" bottom="5.0"/>
@@ -36,10 +35,11 @@
             <TableColumn text="Imię" fx:id="first_nameColumn"/>
             <TableColumn text="Nazwisko" fx:id="last_nameColumn"/>
             <TableColumn text="PESEL" fx:id="peselColumn"/>
+            <TableColumn text="Login" fx:id="loginColumn"/>
             <TableColumn text="Data urodzenia" fx:id="birth_dateColumn"/>
             <TableColumn text="Telefon" fx:id="phone_numberColumn"/>
             <TableColumn text="Płeć" fx:id="genderColumn"/>
-            <TableColumn text="Zapomnij" fx:id="isForgottenColumn" />
+            <TableColumn text="Zapomnij" fx:id="isForgottenColumn"/>
             <TableColumn text="Rola" fx:id="roleColumn" prefWidth="150"/>
         </columns>
     </TableView>

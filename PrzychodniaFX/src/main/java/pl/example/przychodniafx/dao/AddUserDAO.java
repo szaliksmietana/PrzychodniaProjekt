@@ -6,36 +6,10 @@ import pl.example.przychodniafx.DbConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import pl.example.przychodniafx.model.PasswordUtils;
+
 
 public class AddUserDAO {
-
-    public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender, login, password, access_level) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, user.getFirst_name());
-            pstmt.setString(2, user.getLast_name());
-            pstmt.setString(3, user.getPesel());
-            pstmt.setString(4, user.getBirth_date());
-            pstmt.setString(5, user.getGender().toString());
-            pstmt.setString(6, user.getLogin() != null ? user.getLogin() : user.getPesel());
-            pstmt.setString(7, user.getPassword() != null ? user.getPassword() : user.getPesel());
-            pstmt.setInt(8, user.getAccess_level() != null ? user.getAccess_level() : 1);
-
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        user.setUser_id(rs.getInt(1));
-                    }
-                }
-            }
-        }
-    }
 
     public boolean isPeselExists(String pesel) throws SQLException {
         String query = "SELECT COUNT(*) FROM Users WHERE pesel = ?";
@@ -97,33 +71,22 @@ public class AddUserDAO {
                 rs.getString("birth_date")
         );
 
-        user.setUser_id(rs.getInt("user_id"));
+        user.setId(rs.getInt("user_id"));
+
         user.setLogin(rs.getString("login"));
         user.setPassword(rs.getString("password"));
-        user.setAccess_level(rs.getInt("access_level"));
-        user.setIs_forgotten(rs.getBoolean("is_forgotten"));
+        user.setAccessLevel(rs.getInt("access_level"));
+        user.setIsForgotten(rs.getBoolean("is_forgotten"));
 
         String genderStr = rs.getString("gender");
         if (genderStr != null && !genderStr.isEmpty()) {
             user.setGender(genderStr.charAt(0));
         }
 
-        user.setRoleName(rs.getString("role_name")); // <-- dodano roleName
+        user.setRoleName(rs.getString("role_name"));
         return user;
     }
 
-    public void updateUserForgottenStatus(User user) throws SQLException {
-        String sql = "UPDATE Users SET is_forgotten = ? WHERE user_id = ?";
-
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setBoolean(1, user.getIs_forgotten());
-            pstmt.setInt(2, user.getUser_id());
-
-            pstmt.executeUpdate();
-        }
-    }
     public int addUserAndReturnId(User user) throws SQLException {
         String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender, login, password, access_level) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -131,26 +94,39 @@ public class AddUserDAO {
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, user.getFirst_name());
-            pstmt.setString(2, user.getLast_name());
+            pstmt.setString(1, user.getFirstName());
+            pstmt.setString(2, user.getLastName());
             pstmt.setString(3, user.getPesel());
-            pstmt.setString(4, user.getBirth_date());
+            pstmt.setString(4, user.getBirthDate());
             pstmt.setString(5, user.getGender().toString());
             pstmt.setString(6, user.getLogin() != null ? user.getLogin() : user.getPesel());
             pstmt.setString(7, user.getPassword() != null ? user.getPassword() : user.getPesel());
-            pstmt.setInt(8, user.getAccess_level() != null ? user.getAccess_level() : 1);
+            pstmt.setInt(8, user.getAccessLevel() != null ? user.getAccessLevel() : 1);
 
             int affectedRows = pstmt.executeUpdate();
 
             if (affectedRows > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
-                        return rs.getInt(1); // <- Zwracamy user_id
+                        return rs.getInt(1);
                     }
                 }
             }
         }
+
         throw new SQLException("Nie udało się dodać użytkownika i pobrać ID");
     }
 
+    public void updateUserPassword(int userId, String newPassword) throws SQLException {
+        String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
+
+        try (Connection conn = DbConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, PasswordUtils.hashPassword(newPassword));
+            pstmt.setInt(2, userId);
+
+            pstmt.executeUpdate();
+        }
+    }
 }

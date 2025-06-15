@@ -11,8 +11,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="pl.example.przychodniafx.ListPermissionsController">
+
     <top>
         <VBox spacing="10.0">
             <padding>
@@ -25,7 +26,7 @@
             </HBox>
         </VBox>
     </top>
-    
+
     <center>
         <VBox spacing="10.0">
             <padding>
@@ -36,7 +37,7 @@
                 <TextField fx:id="searchField" promptText="Wpisz imię lub nazwisko lub rolę" HBox.hgrow="ALWAYS"/>
                 <Button text="Szukaj" onAction="#handleSearch"/>
             </HBox>
-            
+
             <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="firstNameColumn" text="Imię"/>
@@ -45,12 +46,11 @@
                     <TableColumn fx:id="birthDateColumn" text="Data urodzenia"/>
                     <TableColumn fx:id="genderColumn" text="Płeć"/>
                     <TableColumn fx:id="roleColumn" text="Rola" prefWidth="100"/>
-
                 </columns>
             </TableView>
         </VBox>
     </center>
-    
+
     <bottom>
         <HBox spacing="10.0" alignment="CENTER">
             <padding>
@@ -60,4 +60,4 @@
             <Button text="Zamknij" onAction="#handleClose"/>
         </HBox>
     </bottom>
-</BorderPane> 
+</BorderPane>
