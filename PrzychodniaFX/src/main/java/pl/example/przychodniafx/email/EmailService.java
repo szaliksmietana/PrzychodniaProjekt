@@ -2,9 +2,7 @@ package pl.example.przychodniafx.email;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
-import jakarta.activation.*;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;

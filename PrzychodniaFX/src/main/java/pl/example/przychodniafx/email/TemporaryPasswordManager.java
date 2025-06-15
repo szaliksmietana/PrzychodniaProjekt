@@ -1,5 +1,7 @@
 package pl.example.przychodniafx.email;
 
+import lombok.Getter;
+
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +15,7 @@ public class TemporaryPasswordManager {
     private static final int EXPIRY_MINUTES = 3;
 
     public static class TemporaryPassword {
+        @Getter
         private final String password;
         private final LocalDateTime expiryTime;
 
@@ -21,8 +24,6 @@ public class TemporaryPasswordManager {
             this.expiryTime = expiryTime;
         }
 
-        public String getPassword() { return password; }
-        public LocalDateTime getExpiryTime() { return expiryTime; }
         public boolean isExpired() { return LocalDateTime.now().isAfter(expiryTime); }
     }
 
