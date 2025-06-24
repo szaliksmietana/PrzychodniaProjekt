@@ -14,6 +14,5 @@
     <Label fx:id="genderLabel" text="Płeć:"/>
 
     <Button text="Zmień hasło" onAction="#handleChangePassword"/>
-    <Button text="Edytuj użytkownika" onAction="#handleEditUser"/>
     <Button text="Zamknij" onAction="#handleClose"/>
 </VBox>
