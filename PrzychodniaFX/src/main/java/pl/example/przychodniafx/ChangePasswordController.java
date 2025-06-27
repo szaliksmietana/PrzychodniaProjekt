@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import pl.example.przychodniafx.dao.AddUserDAO;
 import pl.example.przychodniafx.model.User;
+import pl.example.przychodniafx.model.PasswordUtils;
 
 public class ChangePasswordController {
 
@@ -36,8 +37,13 @@ public class ChangePasswordController {
             return;
         }
 
+
+        String hashedPassword = PasswordUtils.hashPassword(newPass);
+
         try {
-            userDAO.updateUserPassword(user.getId(), newPass);
+
+            userDAO.updateUserPassword(user.getId(), hashedPassword);
+
             resultLabel.setStyle("-fx-text-fill: green;");
             resultLabel.setText("Hasło zmienione pomyślnie!");
         } catch (Exception e) {

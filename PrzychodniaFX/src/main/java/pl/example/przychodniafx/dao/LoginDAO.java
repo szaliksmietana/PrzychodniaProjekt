@@ -2,7 +2,7 @@ package pl.example.przychodniafx.dao;
 
 import pl.example.przychodniafx.DbConnection;
 import pl.example.przychodniafx.model.User;
-import pl.example.przychodniafx.email.TemporaryPasswordManager;
+import pl.example.przychodniafx.model.PasswordUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,39 +12,21 @@ import java.sql.SQLException;
 public class LoginDAO {
 
     public User authenticate(String login, String password) throws SQLException {
-        // Jeśli pasuje tymczasowe hasło
-        if (TemporaryPasswordManager.validateTemporaryPassword(login, password)) {
-            return getUserByLogin(login);
-        }
-
-        String sql = "SELECT * FROM Users WHERE login = ? AND password = ?";
+        String sql = "SELECT * FROM Users WHERE login = ?";
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, login);
-            stmt.setString(2, password);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return extractUserFromResultSet(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    public User getUserByLogin(String login) throws SQLException {
-        String query = "SELECT * FROM Users WHERE login = ?";
-
-        try (Connection conn = DbConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, login);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return extractUserFromResultSet(rs);
+                    String storedHashedPassword = rs.getString("password");
+                    // Hashujemy wprowadzone hasło i porównujemy
+                    String hashedPassword = PasswordUtils.hashPassword(password);
+                    if (hashedPassword.equals(storedHashedPassword)) {
+                        return extractUserFromResultSet(rs);
+                    }
                 }
             }
         }
