@@ -166,7 +166,7 @@ public class AddUserController {
             User user = new User(name, surname, pesel, birthDate);
             user.setGender(gender);
             user.setLogin(login);
-            user.setPassword(password);
+            user.setPassword(PasswordUtils.hashPassword(password));
 
             int newUserId = UserDAO.addUserAndReturnId(user);
             roleDAO.assignRoleToUser(newUserId, selectedRole.getRole_id());

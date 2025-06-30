@@ -79,7 +79,7 @@ public class RegisterController {
             User newUser = new User(firstName, lastName, pesel, birthDate);
             newUser.setGender(gender);
             newUser.setLogin(login);
-            newUser.setPassword(password);
+            newUser.setPassword(PasswordUtils.hashPassword(password));
             newUser.setAccessLevel(1);
 
             int userId = addUserDAO.addUserAndReturnId(newUser);

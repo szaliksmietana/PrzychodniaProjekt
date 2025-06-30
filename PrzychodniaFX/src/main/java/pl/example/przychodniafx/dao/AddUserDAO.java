@@ -91,6 +91,9 @@ public class AddUserDAO {
         String sql = "INSERT INTO Users (first_name, last_name, pesel, birth_date, gender, login, password, access_level) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
+        // Haszowanie hasła przed zapisaniem
+        String hashedPassword = PasswordUtils.hashPassword(user.getPassword());
+
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -100,7 +103,7 @@ public class AddUserDAO {
             pstmt.setString(4, user.getBirthDate());
             pstmt.setString(5, user.getGender().toString());
             pstmt.setString(6, user.getLogin() != null ? user.getLogin() : user.getPesel());
-            pstmt.setString(7, user.getPassword() != null ? user.getPassword() : user.getPesel());
+            pstmt.setString(7, hashedPassword); // Zapisz zahaszowane hasło
             pstmt.setInt(8, user.getAccessLevel() != null ? user.getAccessLevel() : 1);
 
             int affectedRows = pstmt.executeUpdate();
@@ -117,13 +120,16 @@ public class AddUserDAO {
         throw new SQLException("Nie udało się dodać użytkownika i pobrać ID");
     }
 
+
     public void updateUserPassword(int userId, String newPassword) throws SQLException {
+
+
         String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
 
         try (Connection conn = DbConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, PasswordUtils.hashPassword(newPassword));
+            pstmt.setString(1, newPassword);
             pstmt.setInt(2, userId);
 
             pstmt.executeUpdate();
